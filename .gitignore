@@ -1,0 +1,20 @@
+# Build artifacts
+*.exe
+*.test
+*.out
+
+# Go module cache
+/pkg/
+
+# IDE/editor directories and files
+.vscode/
+.idea/
+
+# Local environment variables
+*.env
+
+# Binary output
+/bin/
+
+# Go binary output
+/tmp/
