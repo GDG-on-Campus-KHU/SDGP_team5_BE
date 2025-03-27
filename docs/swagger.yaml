@@ -1,0 +1,24 @@
+basePath: /
+host: localhost:5000
+info:
+  contact: {}
+  description: API documentation
+  title: SDGP-team5-BE
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: checks if the server is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Server is running
+          schema:
+            type: string
+      summary: check server status
+      tags:
+      - Status
+swagger: "2.0"
