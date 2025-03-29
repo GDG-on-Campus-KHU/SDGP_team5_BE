@@ -30,7 +30,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 var (
 	host = "localhost"
-	port = "5000"
+	port = "5100"
 )
 
 func main() {
