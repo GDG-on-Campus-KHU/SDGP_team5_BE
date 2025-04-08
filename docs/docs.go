@@ -47,7 +47,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:5100",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "SDGP-team5-BE",
+	Title:            "SDGP-team5-ResQ-BE",
 	Description:      "API documentation",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

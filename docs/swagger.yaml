@@ -3,7 +3,7 @@ host: localhost:5100
 info:
   contact: {}
   description: API documentation
-  title: SDGP-team5-BE
+  title: SDGP-team5-ResQ-BE
   version: "1.0"
 paths:
   /:

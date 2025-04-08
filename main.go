@@ -10,10 +10,10 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-// @title SDGP-team5-BE
+// @title SDGP-team5-ResQ-BE
 // @version 1.0
 // @description API documentation
-// @host localhost:5000
+// @host localhost:5100
 // @BasePath /
 
 // @Summary check server status
