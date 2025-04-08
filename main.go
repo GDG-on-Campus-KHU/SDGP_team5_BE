@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/rs/cors"
+
 	_ "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/docs"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -17,7 +19,7 @@ import (
 // @BasePath /
 
 // @Summary check server status
-// @Description checks if the server is running
+// @Description check if the server is running
 // @Tags Status
 // @Accept json
 // @Produce json
@@ -34,15 +36,24 @@ var (
 )
 
 func main() {
+
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
+		AllowedHeaders: []string{"*"},
+	})
+
 	http.HandleFunc("/", handler)
 
 	http.Handle("/swagger/", httpSwagger.WrapHandler)
+
+	handlerWithCORS := c.Handler(http.DefaultServeMux)
 
 	serverAddress := fmt.Sprintf("%s:%s", host, port)
 	fmt.Printf("Server is running at http://%s\n", serverAddress)
 	fmt.Printf("Swagger UI available at http://%s/swagger\n", serverAddress)
 
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(":"+port, handlerWithCORS); err != nil {
 		fmt.Println("Error starting server:", err)
 	}
 }

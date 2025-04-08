@@ -10,7 +10,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: checks if the server is running
+      description: check if the server is running
       produces:
       - application/json
       responses:
