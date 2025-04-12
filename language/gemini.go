@@ -50,7 +50,8 @@ func removePronunciation(text string) string {
 func callGeminiAPI(apiKey, text, targetLang string) (string, error) {
 	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey
 
-	prompt := fmt.Sprintf("Translate the following text to %s:\n\n%s", targetLang, text)
+	// prompt := fmt.Sprintf("Translate the following text to %s:\n\n%s", targetLang, text)
+	prompt := fmt.Sprintf("Please translate the following medical information to %s, preserving its technical accuracy:\n\n%s", targetLang, text)
 
 	payload := map[string]interface{}{
 		"contents": []map[string]interface{}{
