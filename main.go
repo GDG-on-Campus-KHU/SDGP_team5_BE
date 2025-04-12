@@ -4,12 +4,17 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 
 	_ "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/docs"
 	httpSwagger "github.com/swaggo/http-swagger"
+
+	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/language"
 )
 
 // @title SDGP-team5-ResQ-BE
@@ -37,15 +42,29 @@ var (
 
 func main() {
 
+	// load .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("ERROR: .env file NOT FOUND.")
+	}
+
+	// load Gemini API Key
+	if os.Getenv("GEMINI_API_KEY") == "" {
+		log.Println("ERROR: 'GEMINI_API_KEY' is NOT set.")
+	}
+
+	// CORS
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
 		AllowedHeaders: []string{"*"},
 	})
 
-	http.HandleFunc("/", handler)
-
-	http.Handle("/swagger/", httpSwagger.WrapHandler)
+	// routes
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", handler)
+	mux.Handle("/swagger/", httpSwagger.WrapHandler)
+	mux.HandleFunc("/translate", language.TranslateHandler)
 
 	handlerWithCORS := c.Handler(http.DefaultServeMux)
 
