@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 )
 
 func TranslateHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,8 +42,13 @@ func TranslateHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
+func removePronunciation(text string) string {
+	re := regexp.MustCompile(`\s?\(.*\)`)
+	return re.ReplaceAllString(text, "")
+}
+
 func callGeminiAPI(apiKey, text, targetLang string) (string, error) {
-	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + apiKey
+	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey
 
 	prompt := fmt.Sprintf("Translate the following text to %s:\n\n%s", targetLang, text)
 
@@ -98,5 +104,7 @@ func callGeminiAPI(apiKey, text, targetLang string) (string, error) {
 		return "", fmt.Errorf("no translation returned")
 	}
 
-	return result.Candidates[0].Content.Parts[0].Text, nil
+	// return result.Candidates[0].Content.Parts[0].Text, nil
+	translatedText := result.Candidates[0].Content.Parts[0].Text
+	return removePronunciation(translatedText), nil
 }
