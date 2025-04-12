@@ -62,11 +62,13 @@ func main() {
 
 	// routes
 	mux := http.NewServeMux()
+
 	mux.HandleFunc("/", handler)
-	mux.Handle("/swagger/", httpSwagger.WrapHandler)
+	mux.Handle("/swagger", httpSwagger.WrapHandler)
 	mux.HandleFunc("/translate", language.TranslateHandler)
 
-	handlerWithCORS := c.Handler(http.DefaultServeMux)
+	// handlerWithCORS := c.Handler(http.DefaultServeMux)
+	handlerWithCORS := c.Handler(mux)
 
 	serverAddress := fmt.Sprintf("%s:%s", host, port)
 	fmt.Printf("Server is running at http://%s\n", serverAddress)
