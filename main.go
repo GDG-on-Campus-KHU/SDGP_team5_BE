@@ -48,8 +48,9 @@ func main() {
 		log.Println("ERROR: .env file NOT FOUND.")
 	}
 
-	// initialize database
+	// initialize database & GCS
 	db.InitMongo()
+	db.InitGCS()
 
 	// CORS
 	c := cors.New(cors.Options{
