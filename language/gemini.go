@@ -27,7 +27,8 @@ func TranslateHandler(w http.ResponseWriter, r *http.Request) {
 
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
-		http.Error(w, "API key not set", http.StatusInternalServerError)
+		err := fmt.Errorf("ERROR: 'GEMINI_API_KEY' is NOT set.")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
