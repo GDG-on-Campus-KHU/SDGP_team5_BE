@@ -1,0 +1,639 @@
+[
+    {
+      "index": 1,
+      "slug": "cardiac-arrest",
+      "emoji": "🧍‍♂️",
+      "emer_title": {
+        "ko": "의식 장애 + 심정지",
+        "en": "Unconsciousness + Cardiac Arrest"
+      },
+      "description": {
+        "ko": [
+          "의식 없음은 생명 위협의 신호입니다.",
+          "심정지란 심장이 멈춰 혈액이 뇌로 공급되지 않는 상태로, 호흡도 함께 멈추거나 비정상적인 호흡(가쁜 숨, 헐떡임)이 나타납니다.",
+          "초기 3~4분 안에 CPR을 하지 않으면 뇌 손상이 시작됩니다."
+        ],
+        "en": [
+          "Lack of consciousness is a sign of a life-threatening condition.",
+          "Cardiac arrest is when the heart stops and blood flow to the brain ceases, often accompanied by no breathing or abnormal breathing (gasping, irregular breath).",
+          "Brain damage can start within 3–4 minutes without CPR."
+        ]
+      },
+      "actions": {
+        "ko": [
+          {
+            "step": "안전 확인 후 환자 상태 확인",
+            "details": [
+              "이름을 부르고, 어깨를 살짝 흔들어 반응을 확인"
+            ]
+          },
+          {
+            "step": "호흡 확인",
+            "details": [
+              "가슴이 오르내리는지 관찰 (10초 이내)",
+              "없거나 이상하면 심정지로 간주"
+            ]
+          },
+          {
+            "step": "119 신고 요청",
+            "details": []
+          },
+          {
+            "step": "CPR 시행",
+            "details": [
+              "환자를 딱딱한 바닥에 눕히고",
+              "손바닥을 겹쳐 가슴 중앙에 두고, 팔을 곧게 펴서 체중으로 압박",
+              "깊이 5cm, 분당 100~120회 속도"
+            ]
+          },
+          {
+            "step": "AED(자동심장충격기) 사용",
+            "details": [
+              "근처에 있다면 가져와 지시 음성 따라 사용"
+            ]
+          }
+        ],
+        "en": [
+          {
+            "step": "Check safety and assess the patient's condition",
+            "details": [
+              "Call the person's name and gently shake their shoulders to check for a response"
+            ]
+          },
+          {
+            "step": "Check for breathing",
+            "details": [
+              "Observe whether the chest rises and falls (within 10 seconds)",
+              "If no breathing or abnormal breathing is observed, assume cardiac arrest"
+            ]
+          },
+          {
+            "step": "Call emergency services (119)",
+            "details": []
+          },
+          {
+            "step": "Perform CPR",
+            "details": [
+              "Lay the person on a firm surface",
+              "Place the palms of your hands on the center of the chest, extend your arms straight, and use your body weight to apply pressure",
+              "Compress to a depth of 5 cm, at a rate of 100–120 compressions per minute"
+            ]
+          },
+          {
+            "step": "Use an AED (Automated External Defibrillator)",
+            "details": [
+              "If available, bring the AED and follow the voice instructions"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "slug": "breathing-difficulty",
+      "emoji": "😤",
+      "emer_title": {
+        "ko": "호흡 곤란",
+        "en": "Breathing Difficulty"
+      },
+      "description": {
+        "ko": [
+          "숨쉬기가 힘들거나 기도가 막히면 산소 공급 부족으로 생명 위협이 될 수 있습니다.",
+          "원인은 기도 폐쇄(음식, 이물질), 천식, 알레르기 반응 등 다양합니다.",
+          "“숨 못 쉬겠어요”, “말 못 해요” 같은 증상은 응급입니다."
+        ],
+        "en": [
+          "Difficulty breathing or airway obstruction can lead to oxygen deprivation and life-threatening conditions.",
+          "Causes include airway obstruction (food, foreign objects), asthma, allergic reactions, etc.",
+          "Symptoms such as 'I can't breathe' or 'I can't speak' are emergencies."
+        ]
+      },
+      "actions": {
+        "ko": [
+          {
+            "step": "앉은 자세로 유지",
+            "details": [
+              "숨쉬기 편하도록"
+            ]
+          },
+          {
+            "step": "기침 가능한 경우 기침 유도",
+            "details": []
+          },
+          {
+            "step": "완전 기도폐쇄(말, 기침 불가)일 경우",
+            "details": [
+              "등 5회 세게 두드리기",
+              "복부 밀어내기 5회 (하임리히법)",
+              "반복하다가 의식이 없어지면 CPR 시작"
+            ]
+          },
+          {
+            "step": "천식 또는 알레르기 약이 있다면 사용 도와줌",
+            "details": []
+          },
+          {
+            "step": "쌕쌕거림, 입술 파래짐, 과호흡 등 호흡 장애 지속되면 119 신고",
+            "details": []
+          }
+        ],
+        "en": [
+          {
+            "step": "Keep the person in a sitting position",
+            "details": [
+              "To help with breathing"
+            ]
+          },
+          {
+            "step": "Encourage coughing if possible",
+            "details": []
+          },
+          {
+            "step": "In case of complete airway obstruction (unable to speak or cough)",
+            "details": [
+              "Perform 5 back blows",
+              "Perform 5 abdominal thrusts (Heimlich maneuver)",
+              "Repeat until unconsciousness occurs, then start CPR"
+            ]
+          },
+          {
+            "step": "Assist with asthma or allergy medication if available",
+            "details": []
+          },
+          {
+            "step": "If wheezing, lips turning blue, or rapid breathing persist, call 119",
+            "details": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "slug": "bleeding",
+      "emoji": "🩸",
+      "emer_title": {
+        "ko": "출혈",
+        "en": "Bleeding"
+      },
+      "description": {
+        "ko": [
+          "출혈은 양에 따라 생명을 위협할 수 있는 응급상황입니다.",
+          "특히 팔이나 다리가 절단되거나, 대량의 피가 나올 경우 빠르게 지혈해야 합니다."
+        ],
+        "en": [
+          "Bleeding can be a life-threatening emergency depending on the amount.",
+          "If an arm or leg is severed or there is massive bleeding, rapid hemostasis is required."
+        ]
+      },
+      "actions": {
+        "ko": [
+          {
+            "step": "장갑 착용 또는 비접촉을 위한 대체 수단 사용",
+            "details": []
+          },
+          {
+            "step": "출혈 부위를 강하게 눌러 지혈",
+            "details": [
+              "깨끗한 천, 붕대, 손 등 사용"
+            ]
+          },
+          {
+            "step": "심장에서 아래로 유지",
+            "details": []
+          },
+          {
+            "step": "지혈이 되면 압박한 채 붕대로 감아 고정",
+            "details": []
+          },
+          {
+            "step": "절단된 경우",
+            "details": [
+              "절단 부위를 비닐봉지에 담고, 아이스팩과 함께 (직접 얼음 X)"
+            ]
+          },
+          {
+            "step": "피가 멈추지 않거나 대량일 경우 119 신고",
+            "details": []
+          }
+        ],
+        "en": [
+          {
+            "step": "Wear gloves or use an alternative to avoid direct contact",
+            "details": []
+          },
+          {
+            "step": "Apply direct pressure to the bleeding area",
+            "details": [
+              "Use a clean cloth, bandage, or hands"
+            ]
+          },
+          {
+            "step": "Keep the affected area below the level of the heart",
+            "details": []
+          },
+          {
+            "step": "Once bleeding is controlled, secure with a bandage while maintaining pressure",
+            "details": []
+          },
+          {
+            "step": "If a body part is severed",
+            "details": [
+              "Place the severed part in a plastic bag and keep cool with ice packs (do not apply ice directly)"
+            ]
+          },
+          {
+            "step": "If bleeding does not stop or is severe, call 119",
+            "details": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 4,
+      "slug": "trauma-injury",
+      "emoji": "🦴",
+      "emer_title": {
+        "ko": "외상 (골절, 염좌, 척추 손상 등)",
+        "en": "Trauma (Fractures, Sprains, Spinal Injury, etc.)"
+      },
+      "description": {
+        "ko": [
+          "골절(뼈 부러짐), 염좌(인대 손상), 척추 손상은 부위를 잘못 움직이면 더 큰 손상을 초래할 수 있습니다.",
+          "외형 변형, 움직임 불가, 심한 통증, 부종이 있다면 골절을 의심해야 합니다."
+        ],
+        "en": [
+          "Fractures (broken bones), sprains (ligament injuries), and spinal injuries can cause further damage if moved incorrectly.",
+          "Signs include deformity, inability to move, severe pain, and swelling, suggesting a fracture."
+        ]
+      },
+      "actions": {
+        "ko": [
+          {
+            "step": "부상 부위 움직이지 않게 고정",
+            "details": [
+              "주변의 딱딱한 물건(책, 막대 등)을 부목처럼 사용"
+            ]
+          },
+          {
+            "step": "부목 양옆을 천이나 붕대로 묶기",
+            "details": []
+          },
+          {
+            "step": "냉찜질로 통증과 부기 완화",
+            "details": [
+              "얼음 직접 접촉 X"
+            ]
+          },
+          {
+            "step": "척추 손상 의심 시",
+            "details": [
+              "절대 움직이지 않기",
+              "목, 허리 고정하고 119 신고"
+            ]
+          },
+          {
+            "step": "골절 의심 시 반드시 병원 이송",
+            "details": []
+          }
+        ],
+        "en": [
+          {
+            "step": "Keep the injured area immobile",
+            "details": [
+              "Use hard objects like books or sticks as splints"
+            ]
+          },
+          {
+            "step": "Secure the splint with cloth or bandages on both sides",
+            "details": []
+          },
+          {
+            "step": "Apply cold compress to reduce pain and swelling",
+            "details": [
+              "Do not apply ice directly to the skin"
+            ]
+          },
+          {
+            "step": "If spinal injury is suspected",
+            "details": [
+              "Do not move the person",
+              "Support the neck and back, and call 119"
+            ]
+          },
+          {
+            "step": "In case of suspected fracture, transport to hospital",
+            "details": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 5,
+      "slug": "burns",
+      "emoji": "🔥",
+      "emer_title": {
+        "ko": "화상",
+        "en": "Burns"
+      },
+      "description": {
+        "ko": [
+          "열, 전기, 화학물질, 햇빛 등으로 피부가 손상된 상태.",
+          "특히 얼굴, 손, 생식기, 넓은 부위, 깊은 화상은 생명에 위험이 됩니다."
+        ],
+        "en": [
+          "Damage to the skin caused by heat, electricity, chemicals, sunlight, etc.",
+          "Burns to the face, hands, genital areas, large areas, or deep burns can be life-threatening."
+        ]
+      },
+      "actions": {
+        "ko": [
+          {
+            "step": "즉시 미지근한 흐르는 물로 10~20분 식힘",
+            "details": []
+          },
+          {
+            "step": "옷이 붙었다면 떼지 말고 그대로 두기",
+            "details": []
+          },
+          {
+            "step": "물집은 터뜨리지 않기",
+            "details": []
+          },
+          {
+            "step": "깨끗한 거즈나 수건으로 가볍게 덮기",
+            "details": []
+          },
+          {
+            "step": "화학화상일 경우 즉시 흐르는 물로 씻기",
+            "details": [
+              "보호장비 착용"
+            ]
+          },
+          {
+            "step": "심한 화상, 어린이, 전기·화학 화상은 즉시 119 신고",
+            "details": []
+          }
+        ],
+        "en": [
+          {
+            "step": "Immediately cool the burn under lukewarm running water for 10-20 minutes",
+            "details": []
+          },
+          {
+            "step": "If clothes are stuck, do not remove them, leave them as they are",
+            "details": []
+          },
+          {
+            "step": "Do not burst blisters",
+            "details": []
+          },
+          {
+            "step": "Gently cover with a clean gauze or towel",
+            "details": []
+          },
+          {
+            "step": "For chemical burns, immediately rinse with running water",
+            "details": [
+              "Wear protective equipment"
+            ]
+          },
+          {
+            "step": "For severe burns, burns in children, or electrical/chemical burns, call 119 immediately",
+            "details": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 6,
+      "slug": "seizure",
+      "emoji": "⚡",
+      "emer_title": {
+        "ko": "경련 / 발작",
+        "en": "Seizure / Convulsion"
+      },
+      "description": {
+        "ko": [
+          "경련은 의식이 없는 상태에서 근육이 갑자기 반복적으로 수축하는 현상입니다.",
+          "대부분 1~2분 내에 끝나지만 발작 중 손상 방지가 중요하고, 5분 이상 지속 시 생명 위협이 될 수 있어요."
+        ],
+        "en": [
+          "A seizure is a phenomenon where muscles suddenly contract repeatedly without consciousness.",
+          "It usually lasts 1-2 minutes, but preventing injury during the seizure is crucial, and if it lasts more than 5 minutes, it can be life-threatening."
+        ]
+      },
+      "actions": {
+        "ko": [
+          {
+            "step": "주변 물건을 치워 다치지 않게 함",
+            "details": []
+          },
+          {
+            "step": "억지로 멈추게 하지 않기",
+            "details": []
+          },
+          {
+            "step": "입에 아무것도 넣지 않기",
+            "details": []
+          },
+          {
+            "step": "발작이 끝나면 옆으로 눕혀 기도 확보",
+            "details": []
+          },
+          {
+            "step": "5분 이상 지속되거나 처음인 경우 → 즉시 119 신고",
+            "details": []
+          }
+        ],
+        "en": [
+          {
+            "step": "Clear the area of objects to prevent injury",
+            "details": []
+          },
+          {
+            "step": "Do not try to stop the seizure forcefully",
+            "details": []
+          },
+          {
+            "step": "Do not put anything in the person's mouth",
+            "details": []
+          },
+          {
+            "step": "After the seizure ends, turn the person to their side to secure the airway",
+            "details": []
+          },
+          {
+            "step": "If it lasts more than 5 minutes or if it's the first seizure, call 119 immediately",
+            "details": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 7,
+      "slug": "heat-illness",
+      "emoji": "🌡️",
+      "emer_title": {
+        "ko": "온열 질환",
+        "en": "Heat-Related Illness"
+      },
+      "description": {
+        "ko": [
+          "온열질환: 열사병, 일사병 등 체온이 비정상적으로 상승"
+        ],
+        "en": [
+          "Heat-related illness: Heatstroke, sunstroke, etc., where body temperature rises abnormally."
+        ]
+      },
+      "actions": {
+        "ko": [
+          {
+            "step": "그늘이나 시원한 곳으로 옮기기",
+            "details": []
+          },
+          {
+            "step": "옷을 벗기고 미지근한 물로 닦거나 부채질",
+            "details": []
+          },
+          {
+            "step": "물 마시게 하기 (의식 있을 경우)",
+            "details": []
+          }
+        ],
+        "en": [
+          {
+            "step": "Move to the shade or a cool place",
+            "details": []
+          },
+          {
+            "step": "Remove clothing and wipe with lukewarm water or fan",
+            "details": []
+          },
+          {
+            "step": "Give water to drink (if conscious)",
+            "details": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 8,
+      "slug": "cold-illness",
+      "emoji": "🌡️",
+      "emer_title": {
+        "ko": "한랭 질환",
+        "en": "Cold-Related Illness"
+      },
+      "description": {
+        "ko": [
+          "한랭질환: 저체온증, 동상 등 체온 저하로 생리 기능 저하"
+        ],
+        "en": [
+          "Cold-related illness: Hypothermia, frostbite, etc., caused by decreased body temperature leading to impaired physiological functions."
+        ]
+      },
+      "actions": {
+        "ko": [
+          {
+            "step": "따뜻한 곳으로 옮기기",
+            "details": []
+          },
+          {
+            "step": "젖은 옷 제거 → 담요로 감싸기",
+            "details": []
+          },
+          {
+            "step": "따뜻한 음료 제공 (의식 있을 경우)",
+            "details": []
+          },
+          {
+            "step": "의식 없거나 떨림 심하면 즉시 119 신고",
+            "details": []
+          }
+        ],
+        "en": [
+          {
+            "step": "Move to a warm place",
+            "details": []
+          },
+          {
+            "step": "Remove wet clothing → Wrap with blankets",
+            "details": []
+          },
+          {
+            "step": "Offer warm beverages (if conscious)",
+            "details": []
+          },
+          {
+            "step": "If unconscious or shivering severely, call 119 immediately",
+            "details": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 9,
+      "slug": "mental-crisis",
+      "emoji": "🧠",
+      "emer_title": {
+        "ko": "정신적 응급 (공황, 자살 시도, 트라우마 등)",
+        "en": "Mental Health Emergency (Panic, Suicide Attempt, Trauma, etc.)"
+      },
+      "description": {
+        "ko": [
+          "극도의 스트레스, 불안, 충격, 상실, 자살 충동 등이 정신적 응급상황입니다.",
+          "행동 변화, 말 없음, 과호흡, 눈물, 자해 언급 등은 위험 신호입니다."
+        ],
+        "en": [
+          "Extreme stress, anxiety, shock, loss, suicidal thoughts, etc., are mental health emergencies.",
+          "Behavioral changes, silence, hyperventilation, tears, mention of self-harm, etc., are warning signs."
+        ]
+      },
+      "actions": {
+        "ko": [
+          {
+            "step": "조용하고 안전한 공간 제공",
+            "details": []
+          },
+          {
+            "step": "경청 – 말 끊지 말고, 판단 없이 들어주기",
+            "details": []
+          },
+          {
+            "step": "안정된 말투로 말하기: “괜찮아요, 지금 함께 있어드릴게요”",
+            "details": []
+          },
+          {
+            "step": "자살 관련 언급이 있다면 즉시 119나 정신건강센터 연결",
+            "details": []
+          },
+          {
+            "step": "혼자 두지 말고, 지인이나 전문가 연결",
+            "details": []
+          }
+        ],
+        "en": [
+          {
+            "step": "Provide a quiet and safe space",
+            "details": []
+          },
+          {
+            "step": "Listen attentively – do not interrupt, listen without judgment",
+            "details": []
+          },
+          {
+            "step": "Speak in a calm manner: “It’s okay, I’m here with you right now”",
+            "details": []
+          },
+          {
+            "step": "If there are mentions of suicide, connect immediately to 119 or a mental health center",
+            "details": []
+          },
+          {
+            "step": "Do not leave the person alone, connect with a friend or professional",
+            "details": []
+          }
+        ]
+      }
+    }
+]

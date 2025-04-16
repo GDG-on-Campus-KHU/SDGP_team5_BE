@@ -31,6 +31,176 @@
                     }
                 }
             }
+        },
+        "/situation/actions/case/{slug}/{language}": {
+            "get": {
+                "description": "Retrieve the actions for a specific situation based on its slug (text-based ID).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "situation"
+                ],
+                "summary": "Get Actions by Situation Slug",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Situation Slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "en",
+                        "description": "Language",
+                        "name": "language",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved situation and actions",
+                        "schema": {
+                            "$ref": "#/definitions/model.Situation"
+                        }
+                    },
+                    "404": {
+                        "description": "error message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/situation/actions/{index}/{language}": {
+            "get": {
+                "description": "Retrieve the actions for a specific situation based on its index (numerical ID).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "situation"
+                ],
+                "summary": "Get Actions by Situation Index",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Situation Index",
+                        "name": "index",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "en",
+                        "description": "Language",
+                        "name": "language",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved situation and actions",
+                        "schema": {
+                            "$ref": "#/definitions/model.Situation"
+                        }
+                    },
+                    "400": {
+                        "description": "error message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "error message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.ActionStep": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "step": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MultiLangActions": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/model.ActionStep"
+                }
+            }
+        },
+        "model.MultilingualArray": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MultilingualText": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "model.Situation": {
+            "type": "object",
+            "properties": {
+                "actions": {
+                    "$ref": "#/definitions/model.MultiLangActions"
+                },
+                "description": {
+                    "$ref": "#/definitions/model.MultilingualArray"
+                },
+                "emer_title": {
+                    "$ref": "#/definitions/model.MultilingualText"
+                },
+                "emoji": {
+                    "type": "string"
+                },
+                "index": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
         }
     }
 }
