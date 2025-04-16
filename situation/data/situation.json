@@ -52,6 +52,39 @@
               "근처에 있다면 가져와 지시 음성 따라 사용"
             ]
           }
+        ],
+        "en": [
+          {
+            "step": "Check safety and assess the patient's condition",
+            "details": [
+              "Call the person's name and gently shake their shoulders to check for a response"
+            ]
+          },
+          {
+            "step": "Check for breathing",
+            "details": [
+              "Observe whether the chest rises and falls (within 10 seconds)",
+              "If no breathing or abnormal breathing is observed, assume cardiac arrest"
+            ]
+          },
+          {
+            "step": "Call emergency services (119)",
+            "details": []
+          },
+          {
+            "step": "Perform CPR",
+            "details": [
+              "Lay the person on a firm surface",
+              "Place the palms of your hands on the center of the chest, extend your arms straight, and use your body weight to apply pressure",
+              "Compress to a depth of 5 cm, at a rate of 100–120 compressions per minute"
+            ]
+          },
+          {
+            "step": "Use an AED (Automated External Defibrillator)",
+            "details": [
+              "If available, bring the AED and follow the voice instructions"
+            ]
+          }
         ]
       }
     },
@@ -381,12 +414,12 @@
       },
       "description": {
         "ko": [
-          "경련은 의식이 없는 상태에서 **근육이 갑자기 반복적으로 수축**하는 현상입니다.",
-          "대부분 1~2분 내에 끝나지만 **발작 중 손상 방지**가 중요하고, **5분 이상 지속 시 생명 위협**이 될 수 있어요."
+          "경련은 의식이 없는 상태에서 근육이 갑자기 반복적으로 수축하는 현상입니다.",
+          "대부분 1~2분 내에 끝나지만 발작 중 손상 방지가 중요하고, 5분 이상 지속 시 생명 위협이 될 수 있어요."
         ],
         "en": [
-          "A seizure is a phenomenon where **muscles suddenly contract repeatedly** without consciousness.",
-          "It usually lasts 1-2 minutes, but **preventing injury during the seizure** is crucial, and **if it lasts more than 5 minutes, it can be life-threatening**."
+          "A seizure is a phenomenon where muscles suddenly contract repeatedly without consciousness.",
+          "It usually lasts 1-2 minutes, but preventing injury during the seizure is crucial, and if it lasts more than 5 minutes, it can be life-threatening."
         ]
       },
       "actions": {
@@ -446,10 +479,10 @@
       },
       "description": {
         "ko": [
-          "온열질환: 열사병, 일사병 등 **체온이 비정상적으로 상승**"
+          "온열질환: 열사병, 일사병 등 체온이 비정상적으로 상승"
         ],
         "en": [
-          "Heat-related illness: Heatstroke, sunstroke, etc., where **body temperature rises abnormally**."
+          "Heat-related illness: Heatstroke, sunstroke, etc., where body temperature rises abnormally."
         ]
       },
       "actions": {
@@ -459,7 +492,7 @@
             "details": []
           },
           {
-            "step": "옷을 벗기고 **미지근한 물로 닦거나 부채질**",
+            "step": "옷을 벗기고 미지근한 물로 닦거나 부채질",
             "details": []
           },
           {
@@ -473,7 +506,7 @@
             "details": []
           },
           {
-            "step": "Remove clothing and **wipe with lukewarm water or fan**",
+            "step": "Remove clothing and wipe with lukewarm water or fan",
             "details": []
           },
           {
@@ -493,10 +526,10 @@
       },
       "description": {
         "ko": [
-          "한랭질환: 저체온증, 동상 등 **체온 저하로 생리 기능 저하**"
+          "한랭질환: 저체온증, 동상 등 체온 저하로 생리 기능 저하"
         ],
         "en": [
-          "Cold-related illness: Hypothermia, frostbite, etc., caused by **decreased body temperature leading to impaired physiological functions**."
+          "Cold-related illness: Hypothermia, frostbite, etc., caused by decreased body temperature leading to impaired physiological functions."
         ]
       },
       "actions": {
@@ -514,7 +547,7 @@
             "details": []
           },
           {
-            "step": "의식 없거나 떨림 심하면 즉시 **119 신고**",
+            "step": "의식 없거나 떨림 심하면 즉시 119 신고",
             "details": []
           }
         ],
@@ -532,7 +565,7 @@
             "details": []
           },
           {
-            "step": "If unconscious or shivering severely, call **119 immediately**",
+            "step": "If unconscious or shivering severely, call 119 immediately",
             "details": []
           }
         ]
