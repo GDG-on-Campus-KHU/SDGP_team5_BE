@@ -1,4 +1,45 @@
 basePath: /
+definitions:
+  model.ActionStep:
+    properties:
+      details:
+        items:
+          type: string
+        type: array
+      step:
+        type: string
+    type: object
+  model.MultiLangActions:
+    additionalProperties:
+      items:
+        $ref: '#/definitions/model.ActionStep'
+      type: array
+    type: object
+  model.MultilingualArray:
+    additionalProperties:
+      items:
+        type: string
+      type: array
+    type: object
+  model.MultilingualText:
+    additionalProperties:
+      type: string
+    type: object
+  model.Situation:
+    properties:
+      actions:
+        $ref: '#/definitions/model.MultiLangActions'
+      description:
+        $ref: '#/definitions/model.MultilingualArray'
+      emer_title:
+        $ref: '#/definitions/model.MultilingualText'
+      emoji:
+        type: string
+      index:
+        type: integer
+      slug:
+        type: string
+    type: object
 host: localhost:5100
 info:
   contact: {}
@@ -21,4 +62,78 @@ paths:
       summary: check server status
       tags:
       - Status
+  /situation/actions/{index}/{language}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the actions for a specific situation based on its index
+        (numerical ID).
+      parameters:
+      - description: Situation Index
+        in: path
+        name: index
+        required: true
+        type: integer
+      - default: en
+        description: Language
+        in: path
+        name: language
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved situation and actions
+          schema:
+            $ref: '#/definitions/model.Situation'
+        "400":
+          description: error message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: error message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Actions by Situation Index
+      tags:
+      - situation
+  /situation/actions/case/{slug}/{language}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the actions for a specific situation based on its slug
+        (text-based ID).
+      parameters:
+      - description: Situation Slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      - default: en
+        description: Language
+        in: path
+        name: language
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved situation and actions
+          schema:
+            $ref: '#/definitions/model.Situation'
+        "404":
+          description: error message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Actions by Situation Slug
+      tags:
+      - situation
 swagger: "2.0"
