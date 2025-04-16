@@ -372,7 +372,7 @@
       }
     },
     {
-      "index": "6",
+      "index": 6,
       "slug": "seizure",
       "emoji": "⚡",
       "emer_title": {
@@ -437,7 +437,7 @@
       }
     },
     {
-      "index": "7",
+      "index": 7,
       "slug": "heat-illness",
       "emoji": "🌡️",
       "emer_title": {
@@ -484,7 +484,7 @@
       }
     },
     {
-      "index": "8",
+      "index": 8,
       "slug": "cold-illness",
       "emoji": "🌡️",
       "emer_title": {
@@ -539,7 +539,7 @@
       }
     },
     {
-      "index": "9",
+      "index": 9,
       "slug": "mental-crisis",
       "emoji": "🧠",
       "emer_title": {
