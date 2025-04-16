@@ -7,14 +7,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/rs/cors"
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/docs"
-	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/language"
+	situationHandler "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation/handler"
 )
 
 // @title SDGP-team5-ResQ-BE
@@ -30,9 +31,10 @@ import (
 // @Produce json
 // @Success 200 {string} string "Server is running"
 // @Router / [get]
-func handler(w http.ResponseWriter, r *http.Request) {
-	message := fmt.Sprintf("Server is running at http://%s:%s", host, port)
-	fmt.Fprintf(w, "%s\n", message)
+func StatusHandler(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "Server is running!",
+	})
 }
 
 var (
@@ -52,27 +54,36 @@ func main() {
 	db.InitMongo()
 	db.InitGCS()
 
-	// CORS
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
-		AllowedHeaders: []string{"*"},
-	})
+	r := gin.Default()
+
+	// health check
+	r.GET("/", StatusHandler)
+
+	// Swagger
+	r.GET("/swagger/*any", gin.WrapH(httpSwagger.Handler()))
 
 	// routes
-	mux := http.NewServeMux()
+	r.POST("/translate", gin.WrapF(language.TranslateHandler))
+	situationHandler.RegisterSituationRoutes(r)
 
-	mux.HandleFunc("/", handler)
-	mux.Handle("/swagger/", httpSwagger.WrapHandler)
-	mux.HandleFunc("/translate", language.TranslateHandler)
+	// CORS middleware
+	r.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "*")
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusOK)
+			return
+		}
+		c.Next()
+	})
 
-	handlerWithCORS := c.Handler(mux)
-
-	serverAddress := fmt.Sprintf("%s:%s", host, port)
+	// start the server
+	serverAddress := "localhost:5100"
 	fmt.Printf("Server is running at http://%s\n", serverAddress)
 	fmt.Printf("Swagger UI available at http://%s/swagger\n", serverAddress)
 
-	if err := http.ListenAndServe(":"+port, handlerWithCORS); err != nil {
+	if err := r.Run(":5100"); err != nil {
 		fmt.Println("Error starting server:", err)
 	}
 }
