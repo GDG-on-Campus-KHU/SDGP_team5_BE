@@ -62,6 +62,76 @@ paths:
       summary: check server status
       tags:
       - Status
+  /api/auth/callback:
+    get:
+      description: Handles the callback from Google after user grants permission,
+        generates JWT.
+      parameters:
+      - description: Authorization Code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Missing code
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to fetch user info or generate JWT
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Google OAuth2 Callback
+      tags:
+      - auth
+  /api/auth/login:
+    get:
+      description: Redirects the user to Google login page for authentication.
+      produces:
+      - application/json
+      responses:
+        "307":
+          description: Redirect to Google OAuth2 login
+          schema:
+            type: string
+      summary: Google OAuth2 Login
+      tags:
+      - auth
+  /api/auth/protected:
+    get:
+      description: Returns user info if the provided JWT token is valid.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Authorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Protected route with JWT
+      tags:
+      - auth
   /situation/actions/{index}/{language}:
     get:
       consumes:

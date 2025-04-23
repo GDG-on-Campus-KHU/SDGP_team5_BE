@@ -19,5 +19,5 @@
 # Go binary output
 /tmp/
 
-# google credentials
-/config/google-credentials.json
+# credentials
+/config/
