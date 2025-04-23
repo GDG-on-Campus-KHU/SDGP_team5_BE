@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -13,8 +14,10 @@ import (
 
 	_ "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/docs"
 
+	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/auth"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/language"
+
 	situationHandler "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation/handler"
 )
 
@@ -50,21 +53,20 @@ func main() {
 		log.Println("ERROR: .env file NOT FOUND.")
 	}
 
+	fmt.Println("GOOGLE_AUTH_CLIENT_ID:", os.Getenv("GOOGLE_AUTH_CLIENT_ID"))
+	fmt.Println("GOOGLE_AUTH_CLIENT_SECRET:", os.Getenv("GOOGLE_AUTH_CLIENT_SECRET"))
+
+	// initialize Firebase authentication
+	// firebase.InitFirebase()
+
+	// initialize Google OAuth2 configuration
+	auth.InitGoogleOAuthConfig()
+
 	// initialize database & GCS
 	db.InitMongo()
 	db.InitGCS()
 
 	r := gin.Default()
-
-	// health check
-	r.GET("/", StatusHandler)
-
-	// Swagger
-	r.GET("/swagger/*any", gin.WrapH(httpSwagger.Handler()))
-
-	// routes
-	r.POST("/translate", gin.WrapF(language.TranslateHandler))
-	situationHandler.RegisterSituationRoutes(r)
 
 	// CORS middleware
 	r.Use(func(c *gin.Context) {
@@ -77,6 +79,20 @@ func main() {
 		}
 		c.Next()
 	})
+
+	// health check
+	r.GET("/", StatusHandler)
+
+	// Swagger
+	r.GET("/swagger/*any", gin.WrapH(httpSwagger.Handler()))
+
+	// routes
+	r.GET("/api/auth/login", auth.LoginHandler)
+	r.GET("/api/auth/callback", auth.CallbackHandler)
+	r.GET("/api/auth/protected", auth.JWTAuthMiddleware(), auth.ProtectedHandler)
+
+	r.POST("/translate", gin.WrapF(language.TranslateHandler))
+	situationHandler.RegisterSituationRoutes(r)
 
 	// start the server
 	serverAddress := "localhost:5100"
