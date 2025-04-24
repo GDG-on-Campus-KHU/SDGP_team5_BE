@@ -1,0 +1,58 @@
+[
+    {
+      "country_code": "KR",
+      "country_lang": "ko",
+      "country_name": "South Korea",
+      "local_emer_call": "119",
+      "intl_emer_call": "+82119"
+    },
+    {
+      "country_code": "US",
+      "country_lang": "en",
+      "country_name": "United States",
+      "local_emer_call": "911",
+      "intl_emer_call": "+1911"
+    },
+    {
+      "country_code": "GB",
+      "country_lang": "en",
+      "country_name": "United Kingdom",
+      "local_emer_call": "999",
+      "intl_emer_call": "+44999"
+    },
+    {
+      "country_code": "JP",
+      "country_lang": "ja",
+      "country_name": "Japan",
+      "local_emer_call": "119",
+      "intl_emer_call": "+81119"
+    },
+    {
+      "country_code": "CN",
+      "country_lang": "zh",
+      "country_name": "China",
+      "local_emer_call": "120",
+      "intl_emer_call": "+86120"
+    },
+    {
+      "country_code": "DE",
+      "country_lang": "de",
+      "country_name": "Germany",
+      "local_emer_call": "112",
+      "intl_emer_call": "+49112"
+    },
+    {
+      "country_code": "FR",
+      "country_lang": "fr",
+      "country_name": "France",
+      "local_emer_call": "112",
+      "intl_emer_call": "+33112"
+    },
+    {
+      "country_code": "MX",
+      "country_lang": "es",
+      "country_name": "Mexico",
+      "local_emer_call": "911",
+      "intl_emer_call": "+52911"
+    }
+]
