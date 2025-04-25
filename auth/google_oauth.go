@@ -1,11 +1,11 @@
-// auth/google.go
+// auth/google_oauth.go
 
 package auth
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 
 	"golang.org/x/oauth2"
@@ -30,7 +30,12 @@ func GetGoogleAuthURL(state string) string {
 	return GoogleOAuthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
 }
 
-func GetGoogleUserInfo(code string) ([]byte, error) {
+type GoogleUserInfo struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+func GetGoogleUserInfo(code string) (*GoogleUserInfo, error) {
 	token, err := GoogleOAuthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, err
@@ -43,5 +48,10 @@ func GetGoogleUserInfo(code string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	return io.ReadAll(resp.Body)
+	var userInfo GoogleUserInfo
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		return nil, err
+	}
+
+	return &userInfo, nil
 }
