@@ -15,6 +15,8 @@ import (
 
 var Client *mongo.Client
 
+var UserCollection *mongo.Collection
+
 func InitMongo() {
 	uri := os.Getenv("MONGO_URI")
 
@@ -38,4 +40,6 @@ func InitMongo() {
 
 	fmt.Println("Successfully connected to MongoDB Atlas.")
 	Client = client
+
+	UserCollection = Client.Database("resq").Collection("users")
 }
