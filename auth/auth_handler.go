@@ -1,4 +1,4 @@
-// auth/handler.go
+// auth/auth_handler.go
 
 package auth
 
@@ -9,7 +9,20 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
+
+	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
 )
+
+// generate a random state string
+func generateState() string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	state := make([]byte, 16)
+	for i := range state {
+		state[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(state)
+}
+
 
 // GET /api/auth/login
 
@@ -26,6 +39,7 @@ func LoginHandler(c *gin.Context) {
 	fmt.Println("OAuth URL:", url)
 	c.Redirect(http.StatusTemporaryRedirect, url)
 }
+
 
 // GET /api/auth/callback
 
@@ -46,32 +60,41 @@ func CallbackHandler(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Received code:", code)
 	userInfo, err := GetGoogleUserInfo(code)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user info"})
 		return
 	}
 
-	token, err := GenerateJWT(userInfo)
+	user, err := GetUserByEmail(userInfo.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "DB error"})
+		return
+	}
+
+	if user == nil {
+		newUser := &model.User{
+			Name:  userInfo.Name,
+			Email: userInfo.Email,
+		}
+
+		ctx := c.Request.Context()
+		user, err = CreateUser(ctx, newUser)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+			return
+		}
+	}
+
+	token, err := GenerateJWT(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"token": token,
-	})
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
-func generateState() string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	state := make([]byte, 16)
-	for i := range state {
-		state[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(state)
-}
 
 // GET /api/auth/protected
 
@@ -85,9 +108,28 @@ func generateState() string {
 // @Failure 401 {object} map[string]string "Unauthorized"
 // @Router /api/auth/protected [get]
 func ProtectedHandler(c *gin.Context) {
-	user := c.MustGet("user").(string)
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Authorized",
-		"user":    user,
-	})
+    user, exists := c.Get("user")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{
+            "error": "user not found",
+        })
+        return
+    }
+
+	switch v := user.(type) {
+	case string:
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Authorized",
+			"user":    v,
+		})
+	case float64:
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Authorized",
+			"user":    fmt.Sprintf("%v", v),
+		})
+	default:
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "invalid user type",
+		})
+	}
 }
