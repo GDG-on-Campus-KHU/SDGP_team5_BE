@@ -1,10 +1,12 @@
+// situation/service/situation_service.go
+
 package service
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db"
+	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,7 +14,7 @@ import (
 
 // GET by index and language
 func GetSituationByIndex(index int, language string) (*model.Situation, error) {
-	collection := db.Client.Database("resq").Collection("situation")
+	collection := dbConfig.Client.Database("resq").Collection("situation")
 
 	var situation model.Situation
 	filter := bson.M{"index": index}
@@ -33,7 +35,7 @@ func GetSituationByIndex(index int, language string) (*model.Situation, error) {
 
 // GET by slug and language
 func GetSituationBySlug(slug string, language string) (*model.Situation, error) {
-	collection := db.Client.Database("resq").Collection("situation")
+	collection := dbConfig.Client.Database("resq").Collection("situation")
 
 	var situation model.Situation
 	filter := bson.M{"slug": slug}
