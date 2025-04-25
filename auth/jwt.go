@@ -3,22 +3,39 @@
 package auth
 
 import (
+	"fmt"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-
-	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
 )
 
-func GenerateJWT(user *model.User) (string, error) {
-	claims := jwt.MapClaims{
-		"user_id": user.UserID,
-		"email":   user.Email,
-		"name":    user.Name,
-		"exp":     time.Now().Add(time.Hour * 72).Unix(),
-	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
+func generateToken(userID, name, email string, expiration time.Duration) (string, error) {
+    claims := &CustomClaims{
+        RegisteredClaims: &jwt.RegisteredClaims{
+            Subject:   userID,
+            ExpiresAt: jwt.NewNumericDate(time.Now().Add(expiration)),
+        },
+        Name:  name,
+        Email: email,
+    }
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    secretKey := os.Getenv("JWT_SECRET_KEY")
+
+    tokenString, err := token.SignedString([]byte(secretKey))
+    if err != nil {
+        return "", fmt.Errorf("failed to sign token: %w", err)
+    }
+    return tokenString, nil
+}
+
+
+func GenerateAccessToken(userID, name, email string, expiration time.Duration) (string, error) {
+    return generateToken(userID, name, email, expiration)
+}
+
+
+func GenerateRefreshToken(userID, name, email string) (string, error) {
+    return generateToken(userID, name, email, 24*time.Hour)
 }

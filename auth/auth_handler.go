@@ -4,25 +4,15 @@ package auth
 
 import (
 	"fmt"
-	"math/rand"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
 
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
 )
-
-// generate a random state string
-func generateState() string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	state := make([]byte, 16)
-	for i := range state {
-		state[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(state)
-}
-
 
 // GET /api/auth/login
 
@@ -34,7 +24,7 @@ func generateState() string {
 // @Success 307 {string} string "Redirect to Google OAuth2 login"
 // @Router /api/auth/login [get]
 func LoginHandler(c *gin.Context) {
-	state := generateState()
+	state := GenerateState()
 	url := GoogleOAuthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
 	fmt.Println("OAuth URL:", url)
 	c.Redirect(http.StatusTemporaryRedirect, url)
@@ -86,7 +76,8 @@ func CallbackHandler(c *gin.Context) {
 		}
 	}
 
-	token, err := GenerateJWT(user)
+	userID := strconv.Itoa(user.UserID)
+	token, err := generateToken(userID, user.Name, user.Email, time.Hour*72)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate JWT"})
 		return
@@ -99,13 +90,13 @@ func CallbackHandler(c *gin.Context) {
 // GET /api/auth/protected
 
 // ProtectedHandler handles JWT-authenticated access.
-// @Summary Protected route with JWT
-// @Description Returns user info if the provided JWT token is valid.
+// @Summary Protected route that requires a valid JWT token
+// @Description Returns user info if the provided JWT token is valid. If the token is invalid or expired, the request is unauthorized.
 // @Tags auth
-// @Security BearerAuth
+// @Security BearerAuth  // This indicates the need for a Bearer token in the Authorization header
 // @Produce json
-// @Success 200 {object} map[string]string "Authorized"
-// @Failure 401 {object} map[string]string "Unauthorized"
+// @Success 200 {object} map[string]string "Authorized"  // Successful response with user info
+// @Failure 401 {object} map[string]string "Unauthorized"  // Unauthorized if token is invalid or missing
 // @Router /api/auth/protected [get]
 func ProtectedHandler(c *gin.Context) {
     user, exists := c.Get("user")
@@ -116,20 +107,55 @@ func ProtectedHandler(c *gin.Context) {
         return
     }
 
-	switch v := user.(type) {
-	case string:
+	if userStr, ok := user.(string); ok {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Authorized",
-			"user":    v,
+			"user":    userStr,
 		})
-	case float64:
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Authorized",
-			"user":    fmt.Sprintf("%v", v),
-		})
-	default:
+	} else {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "invalid user type",
+			"error": "Invalid user type",
 		})
 	}
+}
+
+
+// POST /api/auth/refresh-token
+
+// RefreshTokenHandler handles the refresh token logic.
+// @Summary Refreshes the access token using a valid refresh token
+// @Description Accepts a valid refresh token and issues a new access token if the refresh token is valid. The refresh token should be passed in the request body.
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param refresh_token body string true "The refresh token used to generate a new access token"
+// @Success 200 {object} map[string]string "access_token"  // Returns the newly generated access token
+// @Failure 400 {object} map[string]string "Invalid request"  // Invalid or malformed request body
+// @Failure 401 {object} map[string]string "Invalid refresh token"  // If the refresh token is invalid
+// @Failure 500 {object} map[string]string "Could not generate access token"  // If there is an issue generating the access token
+// @Router /api/auth/refresh-token [post]
+func RefreshTokenHandler(c *gin.Context) {
+	var req struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	// refresh token validation
+	claims, err := ValidateRefreshToken(req.RefreshToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
+		return
+	}
+
+	// issue new token
+	accessToken, err := GenerateAccessToken(claims.Subject, claims.Name, claims.Email, time.Hour)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate access token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"access_token": accessToken})
 }
