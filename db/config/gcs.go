@@ -1,4 +1,4 @@
-// db/gcs.go
+// db/config/gcs.go
 
 package db
 

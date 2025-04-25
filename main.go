@@ -15,9 +15,8 @@ import (
 	_ "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/docs"
 
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/auth"
-	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db"
+	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/language"
-
 	situationHandler "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation/handler"
 )
 
@@ -63,8 +62,8 @@ func main() {
 	auth.InitGoogleOAuthConfig()
 
 	// initialize database & GCS
-	db.InitMongo()
-	db.InitGCS()
+	dbConfig.InitMongo()
+	dbConfig.InitGCS()
 
 	r := gin.Default()
 

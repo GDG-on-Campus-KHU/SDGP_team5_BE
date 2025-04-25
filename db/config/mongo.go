@@ -1,4 +1,4 @@
-// db/mongo.go
+// db/config/mongo.go
 
 package db
 
