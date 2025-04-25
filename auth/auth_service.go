@@ -32,6 +32,7 @@ func GetUserByEmail(email string) (*model.User, error) {
 
 
 func CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
+	// user_id (auto-increment)
 	userID, err := util.GetNextID(ctx, dbConfig.Client.Database("resq"), "users")
 	if err != nil {
 		log.Printf("Error getting next user ID: %v", err)
@@ -39,9 +40,24 @@ func CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
 	}
 
 	user.UserID = userID
-	collection := dbConfig.UserCollection
 
-	// User 생성
+	// set default values
+	if user.GroupIDs == nil {
+		user.GroupIDs = []int{}
+	}
+	if user.Favorites == nil {
+		user.Favorites = []int{}
+	}
+	if user.AppLang == "" {
+		user.AppLang = "ko"
+	}
+	if user.CountryCode == "" {
+		user.CountryCode = "KR"
+	}
+	user.InfoID = userID
+
+	// save user
+	collection := dbConfig.UserCollection
 	_, err = collection.InsertOne(ctx, user)
 	if err != nil {
 		log.Printf("Error creating user: %v", err)
