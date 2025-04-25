@@ -86,15 +86,12 @@ func main() {
 	r.GET("/swagger/*any", gin.WrapH(httpSwagger.Handler()))
 
 	// routes
-	r.GET("/api/auth/login", auth.LoginHandler)
-	r.GET("/api/auth/callback", auth.CallbackHandler)
-	r.GET("/api/auth/protected", auth.JWTAuthMiddleware(), auth.ProtectedHandler)
-
-	r.POST("/translate", gin.WrapF(language.TranslateHandler))
+	auth.RegisterAuthRoutes(r)
 	situationHandler.RegisterSituationRoutes(r)
+	r.POST("/translate", gin.WrapF(language.TranslateHandler))
 
 	// start the server
-	serverAddress := "localhost:5100"
+	serverAddress := host + ":" + port
 	fmt.Printf("Server is running at http://%s\n", serverAddress)
 	fmt.Printf("Swagger UI available at http://%s/swagger\n", serverAddress)
 

@@ -111,25 +111,71 @@ paths:
       - auth
   /api/auth/protected:
     get:
-      description: Returns user info if the provided JWT token is valid.
+      description: Returns user info if the provided JWT token is valid. If the token
+        is invalid or expired, the request is unauthorized.
       produces:
       - application/json
       responses:
         "200":
-          description: Authorized
+          description: Authorized"  // Successful response with user info
           schema:
             additionalProperties:
               type: string
             type: object
         "401":
-          description: Unauthorized
+          description: Unauthorized"  // Unauthorized if token is invalid or missing
           schema:
             additionalProperties:
               type: string
             type: object
       security:
-      - BearerAuth: []
-      summary: Protected route with JWT
+      - BearerAuth  // This indicates the need for a Bearer token in the Authorization header: []
+      summary: Protected route that requires a valid JWT token
+      tags:
+      - auth
+  /api/auth/refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Accepts a valid refresh token and issues a new access token if
+        the refresh token is valid. The refresh token should be passed in the request
+        body.
+      parameters:
+      - description: The refresh token used to generate a new access token
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: access_token"  // Returns the newly generated access token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request"  // Invalid or malformed request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid refresh token"  // If the refresh token is invalid
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Could not generate access token"  // If there is an issue generating
+            the access token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refreshes the access token using a valid refresh token
       tags:
       - auth
   /situation/actions/{index}/{language}:
