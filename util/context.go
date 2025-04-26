@@ -3,23 +3,36 @@
 package util
 
 import (
+	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+
+	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
+	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
 )
 
-const UserIDKey = "user_id"
+// const UserIDKey = "user_id"
 
-func GetUserIDFromContext(c *gin.Context) (int, error) {
-	value, exists := c.Get(UserIDKey)
+func GetUserIDFromContext(c *gin.Context) (string, error) {
+	name, exists := c.Get("user")
 	if !exists {
-		return 0, fmt.Errorf("user_id not found in context")
+		return "", fmt.Errorf("user not found in context")
 	}
 
-	userID, ok := value.(int)
+	nameStr, ok := name.(string)
 	if !ok {
-		return 0, fmt.Errorf("user_id is not of type int")
+		return "", fmt.Errorf("user name is not a string")
 	}
 
-	return userID, nil
+	var user model.User
+	err := dbConfig.UserCollection.FindOne(context.TODO(), bson.M{"name": nameStr}).Decode(&user)
+	if err != nil {
+		return "", fmt.Errorf("failed to find user by name: %v", err)
+	}
+
+	// return user.UserID, nil
+	return strconv.Itoa(user.UserID), nil
 }

@@ -20,13 +20,25 @@ import (
 
 func GetUserByEmail(email string) (*model.User, error) {
 	var user model.User
-	err := dbConfig.UserCollection.FindOne(context.Background(), bson.M{"email": email}).Decode(&user)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	}
-	if err != nil {
+	
+	result := dbConfig.UserCollection.FindOne(context.Background(), bson.M{"email": email})
+
+	if err := result.Err(); err != nil {
+		if err == mongo.ErrNoDocuments {
+			log.Printf("[GetUserByEmail] No user found for email: %s", email)
+			return nil, nil
+		}
+		log.Printf("[GetUserByEmail] Error finding user by email: %v", err)
 		return nil, err
 	}
+
+	err := result.Decode(&user)
+	if err != nil {
+		log.Printf("[GetUserByEmail] Error decoding user data: %v", err)
+		return nil, err
+	}
+
+	log.Printf("[GetUserByEmail] User found: %s", email)
 	return &user, nil
 }
 
@@ -43,7 +55,7 @@ func CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
 
 	// set default values
 	if user.GroupIDs == nil {
-		user.GroupIDs = []int{}
+		user.GroupIDs = []string{}
 	}
 	if user.Favorites == nil {
 		user.Favorites = []int{}
