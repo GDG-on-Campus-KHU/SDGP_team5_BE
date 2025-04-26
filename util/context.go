@@ -3,7 +3,6 @@
 package util
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
@@ -14,7 +13,6 @@ import (
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
 )
 
-// const UserIDKey = "user_id"
 
 func GetUserIDFromContext(c *gin.Context) (string, error) {
 	name, exists := c.Get("user")
@@ -28,11 +26,10 @@ func GetUserIDFromContext(c *gin.Context) (string, error) {
 	}
 
 	var user model.User
-	err := dbConfig.UserCollection.FindOne(context.TODO(), bson.M{"name": nameStr}).Decode(&user)
+	err := dbConfig.UserCollection.FindOne(c.Request.Context(), bson.M{"name": nameStr}).Decode(&user)
 	if err != nil {
 		return "", fmt.Errorf("failed to find user by name: %v", err)
 	}
 
-	// return user.UserID, nil
 	return strconv.Itoa(user.UserID), nil
 }
