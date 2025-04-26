@@ -19,6 +19,7 @@ import (
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/group"
 	groupRepository "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/group/repository"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/language"
+	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/recording"
 	situationHandler "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation/handler"
 )
 
@@ -90,6 +91,7 @@ func main() {
 	// routes
 	auth.RegisterAuthRoutes(r)
 	situationHandler.RegisterSituationRoutes(r)
+	recording.RegisterRecordingRoutes(r)
 
 	groupRepo := groupRepository.NewGroupRepository()
 	groupService := group.NewGroupService(groupRepo)
