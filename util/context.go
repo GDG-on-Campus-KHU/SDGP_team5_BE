@@ -3,17 +3,23 @@
 package util
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 )
 
 const UserIDKey = "user_id"
 
-func GetUserIDFromContext(c *gin.Context) (int, bool) {
+func GetUserIDFromContext(c *gin.Context) (int, error) {
 	value, exists := c.Get(UserIDKey)
 	if !exists {
-		return 0, false
+		return 0, fmt.Errorf("user_id not found in context")
 	}
 
 	userID, ok := value.(int)
-	return userID, ok
+	if !ok {
+		return 0, fmt.Errorf("user_id is not of type int")
+	}
+
+	return userID, nil
 }
