@@ -103,3 +103,57 @@ func (s *GroupService) DeleteGroup(ctx context.Context, id primitive.ObjectID) e
 func (s *GroupService) ListGroups(ctx context.Context) ([]*model.Group, error) {
 	return s.repo.List(ctx)
 }
+
+// GetGroupsByUserID retrieves groups by user ID
+func (s *GroupService) GetGroupsByUserID(ctx context.Context, userID string) ([]*model.Group, error) {
+	
+	// extract user info
+	userIDInt, err := strconv.Atoi(userID)
+	if err != nil {
+		log.Printf("Invalid userID: %v", err)
+		return nil, err
+	}
+
+	// 사용자의 'group_ids' 가져오기
+	var user model.User
+	err = dbConfig.UserCollection.FindOne(ctx, bson.M{"user_id": userIDInt}).Decode(&user)
+	if err != nil {
+		log.Printf("failed to find user by user_id: %v", err)
+		return nil, err
+	}
+
+	// GroupIDs에 대한 처리 (ObjectID로 변환)
+	var objectIDs []primitive.ObjectID
+    for _, idStr := range user.GroupIDs {
+        oid, err := primitive.ObjectIDFromHex(idStr)
+        if err != nil {
+            log.Printf("Invalid GroupID: %s, error: %v", idStr, err)
+            continue
+        }
+        objectIDs = append(objectIDs, oid)
+    }
+
+	cursor, err := dbConfig.GroupCollection.Find(ctx, bson.M{"_id": bson.M{"$in": objectIDs}})
+
+	if err != nil {
+		log.Printf("Error querying groups: %v", err)
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var groups []*model.Group
+
+	for cursor.Next(ctx) {
+		var group model.Group
+		if err := cursor.Decode(&group); err != nil {
+			return nil, err
+		}
+		groups = append(groups, &group)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return groups, nil
+}
