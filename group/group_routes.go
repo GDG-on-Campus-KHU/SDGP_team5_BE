@@ -22,4 +22,12 @@ func RegisterGroupRoutes(r *gin.Engine, groupHandler *GroupHandler) {
 
 	// group members routes
 	r.GET("/api/groups/:id/members", auth.JWTAuthMiddleware(), groupHandler.GetGroupMembers)
+
+	// group invitation routes
+	r.POST("/api/groups/:id/invite", auth.JWTAuthMiddleware(), groupHandler.InviteUser)
+	r.POST("/api/groups/:id/accept", auth.JWTAuthMiddleware(), groupHandler.AcceptInvite)
+	r.POST("/api/groups/:id/reject", auth.JWTAuthMiddleware(), groupHandler.RejectInvite)
+
+	// leave group route
+	r.DELETE("/api/groups/:id/members/me", auth.JWTAuthMiddleware(), groupHandler.LeaveGroup)
 }
