@@ -162,3 +162,23 @@ func (s *GroupService) GetGroupsByUserID(ctx context.Context, userID string) ([]
 func (s *GroupService) GetGroupMembers(ctx context.Context, groupID primitive.ObjectID) (*model.GroupMembersResponse, error) {
 	return s.repo.GetGroupMembers(ctx, groupID)
 }
+
+// InviteUserToGroup invites a user to a group
+func (s *GroupService) InviteUserToGroup(ctx context.Context, groupID primitive.ObjectID, inviterUserID int, inviteeEmail string) error {
+	return s.repo.InviteUser(ctx, groupID, inviterUserID, inviteeEmail)
+}
+
+// AcceptGroupInvite accepts an invitation to join a group
+func (s *GroupService) AcceptGroupInvite(ctx context.Context, groupID primitive.ObjectID, userID int) error {
+	return s.repo.AcceptInvite(ctx, groupID, userID)
+}
+
+// RejectGroupInvite rejects an invitation to join a group
+func (s *GroupService) RejectGroupInvite(ctx context.Context, groupID primitive.ObjectID, userID int) error {
+	return s.repo.RejectInvite(ctx, groupID, userID)
+}
+
+// LeaveGroup allows a user to leave a group
+func (s *GroupService) LeaveGroup(ctx context.Context, groupID primitive.ObjectID, userID int) error {
+	return s.repo.LeaveGroup(ctx, groupID, userID)
+}
