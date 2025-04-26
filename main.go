@@ -16,6 +16,8 @@ import (
 
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/auth"
 	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
+	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/group"
+	groupRepository "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/group/repository"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/language"
 	situationHandler "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation/handler"
 )
@@ -88,6 +90,12 @@ func main() {
 	// routes
 	auth.RegisterAuthRoutes(r)
 	situationHandler.RegisterSituationRoutes(r)
+
+	groupRepo := groupRepository.NewGroupRepository()
+	groupService := group.NewGroupService(groupRepo)
+	groupHandler := group.NewGroupHandler(groupService)
+	group.RegisterGroupRoutes(r, groupHandler)
+
 	r.POST("/translate", gin.WrapF(language.TranslateHandler))
 
 	// start the server
