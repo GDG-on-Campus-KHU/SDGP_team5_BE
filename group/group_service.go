@@ -103,3 +103,82 @@ func (s *GroupService) DeleteGroup(ctx context.Context, id primitive.ObjectID) e
 func (s *GroupService) ListGroups(ctx context.Context) ([]*model.Group, error) {
 	return s.repo.List(ctx)
 }
+
+// GetGroupsByUserID retrieves groups by user ID
+func (s *GroupService) GetGroupsByUserID(ctx context.Context, userID string) ([]*model.Group, error) {
+	
+	// extract user info
+	userIDInt, err := strconv.Atoi(userID)
+	if err != nil {
+		log.Printf("Invalid userID: %v", err)
+		return nil, err
+	}
+
+	// 사용자의 'group_ids' 가져오기
+	var user model.User
+	err = dbConfig.UserCollection.FindOne(ctx, bson.M{"user_id": userIDInt}).Decode(&user)
+	if err != nil {
+		log.Printf("failed to find user by user_id: %v", err)
+		return nil, err
+	}
+
+	// GroupIDs에 대한 처리 (ObjectID로 변환)
+	var objectIDs []primitive.ObjectID
+    for _, idStr := range user.GroupIDs {
+        oid, err := primitive.ObjectIDFromHex(idStr)
+        if err != nil {
+            log.Printf("Invalid GroupID: %s, error: %v", idStr, err)
+            continue
+        }
+        objectIDs = append(objectIDs, oid)
+    }
+
+	cursor, err := dbConfig.GroupCollection.Find(ctx, bson.M{"_id": bson.M{"$in": objectIDs}})
+
+	if err != nil {
+		log.Printf("Error querying groups: %v", err)
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var groups []*model.Group
+
+	for cursor.Next(ctx) {
+		var group model.Group
+		if err := cursor.Decode(&group); err != nil {
+			return nil, err
+		}
+		groups = append(groups, &group)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return groups, nil
+}
+
+// GetGroupMembers retrieves members of a group by its ID
+func (s *GroupService) GetGroupMembers(ctx context.Context, groupID primitive.ObjectID) (*model.GroupMembersResponse, error) {
+	return s.repo.GetGroupMembers(ctx, groupID)
+}
+
+// InviteUserToGroup invites a user to a group
+func (s *GroupService) InviteUserToGroup(ctx context.Context, groupID primitive.ObjectID, inviterUserID int, inviteeEmail string) error {
+	return s.repo.InviteUser(ctx, groupID, inviterUserID, inviteeEmail)
+}
+
+// AcceptGroupInvite accepts an invitation to join a group
+func (s *GroupService) AcceptGroupInvite(ctx context.Context, groupID primitive.ObjectID, userID int) error {
+	return s.repo.AcceptInvite(ctx, groupID, userID)
+}
+
+// RejectGroupInvite rejects an invitation to join a group
+func (s *GroupService) RejectGroupInvite(ctx context.Context, groupID primitive.ObjectID, userID int) error {
+	return s.repo.RejectInvite(ctx, groupID, userID)
+}
+
+// LeaveGroup allows a user to leave a group
+func (s *GroupService) LeaveGroup(ctx context.Context, groupID primitive.ObjectID, userID int) error {
+	return s.repo.LeaveGroup(ctx, groupID, userID)
+}

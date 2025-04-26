@@ -7,6 +7,13 @@ definitions:
     required:
     - group_name
     type: object
+  group.InviteRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
   group.UpdateGroupRequest:
     properties:
       group_name:
@@ -46,6 +53,17 @@ definitions:
         type: string
       user_id:
         type: integer
+    type: object
+  model.GroupMembersResponse:
+    properties:
+      group_id:
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/model.GroupMember'
+        type: array
+      name:
+        type: string
     type: object
   model.MultiLangActions:
     additionalProperties:
@@ -371,6 +389,222 @@ paths:
               type: string
             type: object
       summary: Update a group
+      tags:
+      - groups
+  /api/groups/{id}/accept:
+    post:
+      consumes:
+      - application/json
+      description: Accept an invitation to join a group by group ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID
+        in: body
+        name: userID
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Invite accepted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Accept an invitation to join a group
+      tags:
+      - groups
+  /api/groups/{id}/invite:
+    post:
+      consumes:
+      - application/json
+      description: Invite a user to join a specific group by email
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Invite user request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/group.InviteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User invited successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Invite a user to a group
+      tags:
+      - groups
+  /api/groups/{id}/members:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the members of a group by its ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of members in the group
+          schema:
+            $ref: '#/definitions/model.GroupMembersResponse'
+        "400":
+          description: Invalid group ID format
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get members of a specific group
+      tags:
+      - groups
+  /api/groups/{id}/members/me:
+    delete:
+      consumes:
+      - application/json
+      description: Current user leaves the group
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully left the group
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Leave a group
+      tags:
+      - groups
+  /api/groups/{id}/reject:
+    post:
+      consumes:
+      - application/json
+      description: Reject an invitation to join a specific group by group ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID
+        in: body
+        name: userID
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Invite rejected successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Reject an invitation to join a group
+      tags:
+      - groups
+  /api/groups/me:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the groups the logged-in user belongs to
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of groups the user belongs to
+          schema:
+            items:
+              $ref: '#/definitions/model.Group'
+            type: array
+        "401":
+          description: Unauthorized access
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all groups for the logged-in user
       tags:
       - groups
   /situation/actions/{index}/{language}:

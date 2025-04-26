@@ -3,6 +3,8 @@
 package group
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -25,6 +27,10 @@ type CreateGroupRequest struct {
 
 type UpdateGroupRequest struct {
 	GroupName string `json:"group_name"`
+}
+
+type InviteRequest struct {
+    Email string `json:"email" binding:"required,email"`
 }
 
 
@@ -188,4 +194,246 @@ func (h *GroupHandler) ListGroups(c *gin.Context) {
 		return
 	}
 	util.RespondSuccess(c, groups)
+}
+
+
+// GET /api/groups/me
+// @Summary Get all groups for the logged-in user
+// @Description Retrieve the groups the logged-in user belongs to
+// @Tags groups
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.Group "List of groups the user belongs to"
+// @Failure 401 {object} map[string]string "Unauthorized access"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/groups/me [get]
+func (h *GroupHandler) GetMyGroups(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	userID, err := util.GetUserIDFromContext(c)
+	if err != nil {
+		util.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	groups, err := h.service.GetGroupsByUserID(ctx, userID)
+	if err != nil {
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, groups)
+}
+
+
+// GET /api/groups/{id}/members
+// @Summary Get members of a specific group
+// @Description Retrieve the members of a group by its ID
+// @Tags groups
+// @Accept json
+// @Produce json
+// @Param id path string true "Group ID"
+// @Success 200 {object} model.GroupMembersResponse "List of members in the group"
+// @Failure 400 {object} map[string]string "Invalid group ID format"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/groups/{id}/members [get]
+func (h *GroupHandler) GetGroupMembers(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	// extract 'GroupID'
+	groupIDStr := c.Param("id")
+	groupID, err := primitive.ObjectIDFromHex(groupIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid group ID format")
+		return
+	}
+
+	// group에 포함된 member 가져오기
+	groupMembers, err := h.service.GetGroupMembers(ctx, groupID)
+	if err != nil {
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, groupMembers)
+}
+
+
+// POST /api/groups/{id}/invite
+// @Summary Invite a user to a group
+// @Description Invite a user to join a specific group by email
+// @Tags groups
+// @Accept json
+// @Produce json
+// @Param id path string true "Group ID"
+// @Param request body InviteRequest true "Invite user request body"
+// @Success 200 {object} map[string]string "User invited successfully"
+// @Failure 400 {object} map[string]string "Bad request"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/groups/{id}/invite [post]
+func (h *GroupHandler) InviteUser(c *gin.Context) {
+    ctx := c.Request.Context()
+
+    groupIDHex := c.Param("id")
+    groupID, err := primitive.ObjectIDFromHex(groupIDHex)
+    if err != nil {
+        util.RespondBadRequest(c, "Invalid group ID")
+        return
+    }
+
+    var req InviteRequest
+    if err := c.ShouldBindJSON(&req); err != nil {
+        util.RespondBadRequest(c, "Invalid request body")
+        return
+    }
+
+    userIDStr, err := util.GetUserIDFromContext(c)
+    if err != nil {
+        util.RespondUnauthorized(c, "Unauthorized access")
+        return
+    }
+
+    userID, err := strconv.Atoi(userIDStr)
+    if err != nil {
+        util.RespondBadRequest(c, "Invalid user ID")
+        return
+    }
+
+    if err := h.service.InviteUserToGroup(ctx, groupID, userID, req.Email); err != nil {
+        util.RespondInternalError(c, err.Error())
+        return
+    }
+
+    util.RespondSuccess(c, "Invitation sent successfully")
+}
+
+
+// POST /api/groups/{id}/accept
+// @Summary Accept an invitation to join a group
+// @Description Accept an invitation to join a group by group ID
+// @Tags groups
+// @Accept json
+// @Produce json
+// @Param id path string true "Group ID"
+// @Param userID body int true "User ID"
+// @Success 200 {string} string "Invite accepted successfully"
+// @Failure 400 {object} map[string]string "Bad request"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/groups/{id}/accept [post]
+func (h *GroupHandler) AcceptInvite(c *gin.Context) {
+	ctx := c.Request.Context()
+	groupIDStr := c.Param("id")
+
+	groupID, err := primitive.ObjectIDFromHex(groupIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid group ID")
+		return
+	}
+
+	userIDStr, err := util.GetUserIDFromContext(c)
+	if err != nil {
+		util.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid user ID format")
+		return
+	}
+
+	err = h.service.AcceptGroupInvite(ctx, groupID, userID)
+	if err != nil {
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, "Invite accepted successfully")
+}
+
+
+// POST /api/groups/{id}/reject
+// @Summary Reject an invitation to join a group
+// @Description Reject an invitation to join a specific group by group ID
+// @Tags groups
+// @Accept json
+// @Produce json
+// @Param id path string true "Group ID"
+// @Param userID body int true "User ID"
+// @Success 200 {string} string "Invite rejected successfully"
+// @Failure 400 {object} map[string]string "Bad request"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/groups/{id}/reject [post]
+func (h *GroupHandler) RejectInvite(c *gin.Context) {
+	ctx := c.Request.Context()
+	groupIDStr := c.Param("id")
+
+	groupID, err := primitive.ObjectIDFromHex(groupIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid group ID")
+		return
+	}
+
+	userIDStr, err := util.GetUserIDFromContext(c)
+	if err != nil {
+		util.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid user ID format")
+		return
+	}
+
+	err = h.service.RejectGroupInvite(ctx, groupID, userID)
+	if err != nil {
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, "Invite rejected successfully")
+}
+
+
+// DELETE /api/groups/{id}/members/me
+// @Summary Leave a group
+// @Description Current user leaves the group
+// @Tags groups
+// @Accept json
+// @Produce json
+// @Param id path string true "Group ID"
+// @Success 200 {object} map[string]string "Successfully left the group"
+// @Failure 400 {object} map[string]string "Bad request"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/groups/{id}/members/me [delete]
+func (h *GroupHandler) LeaveGroup(c *gin.Context) {
+	ctx := c.Request.Context()
+	groupIDStr := c.Param("id")
+
+	groupID, err := primitive.ObjectIDFromHex(groupIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid group ID")
+		return
+	}
+
+	userIDStr, err := util.GetUserIDFromContext(c)
+	if err != nil {
+		util.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid user ID format")
+		return
+	}
+
+	err = h.service.LeaveGroup(ctx, groupID, userID)
+	if err != nil {
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, "User left the group successfully")
 }
