@@ -30,6 +30,6 @@ type User struct {
 	CountryCode string			`bson:"country_code" json:"country_code"`	// 여행 중인 국가 코드 (ex. "KR", "US")
 	InfoID      int				`bson:"info_id" json:"info_id"`				// ref. struct 'MedicalInfo'
 
-	GroupIDs  []int				`bson:"group_ids" json:"group_ids"`
+	GroupIDs  []string			`bson:"group_ids" json:"group_ids"`
 	Favorites []int				`bson:"favorites" json:"favorites"`			// situation index
 }
