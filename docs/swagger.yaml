@@ -1,5 +1,17 @@
 basePath: /
 definitions:
+  group.CreateGroupRequest:
+    properties:
+      group_name:
+        type: string
+    required:
+    - group_name
+    type: object
+  group.UpdateGroupRequest:
+    properties:
+      group_name:
+        type: string
+    type: object
   model.ActionStep:
     properties:
       details:
@@ -8,6 +20,32 @@ definitions:
         type: array
       step:
         type: string
+    type: object
+  model.Group:
+    properties:
+      created_at:
+        description: timestamp
+        type: string
+      group_name:
+        type: string
+      id:
+        description: MongoDB ObjectId
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/model.GroupMember'
+        type: array
+    type: object
+  model.GroupMember:
+    properties:
+      email:
+        type: string
+      invited_by:
+        type: integer
+      status:
+        type: string
+      user_id:
+        type: integer
     type: object
   model.MultiLangActions:
     additionalProperties:
@@ -178,6 +216,163 @@ paths:
       summary: Refreshes the access token using a valid refresh token
       tags:
       - auth
+  /api/groups:
+    get:
+      description: Get a list of all groups
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of groups
+          schema:
+            items:
+              $ref: '#/definitions/model.Group'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all groups
+      tags:
+      - groups
+    post:
+      consumes:
+      - application/json
+      description: Create a group with a specified name
+      parameters:
+      - description: Group name
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/group.CreateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Group created successfully
+          schema:
+            $ref: '#/definitions/model.Group'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new group
+      tags:
+      - groups
+  /api/groups/{id}:
+    delete:
+      description: Delete a group by its ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Group deleted
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid group ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a group
+      tags:
+      - groups
+    get:
+      description: Retrieve a group's information using its ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Group found
+          schema:
+            $ref: '#/definitions/model.Group'
+        "400":
+          description: Invalid group ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a group by ID
+      tags:
+      - groups
+    patch:
+      consumes:
+      - application/json
+      description: Update a group's name by its ID (Partial update)
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated group name
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/group.UpdateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Group updated
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a group
+      tags:
+      - groups
   /situation/actions/{index}/{language}:
     get:
       consumes:
