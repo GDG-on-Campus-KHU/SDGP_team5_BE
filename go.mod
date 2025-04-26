@@ -3,7 +3,7 @@ module github.com/GDG-on-Campus-KHU/SDGP_team5_BE
 go 1.23.1
 
 require (
-	cloud.google.com/go/storage v1.51.0
+	cloud.google.com/go/storage v1.52.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/joho/godotenv v1.5.1
