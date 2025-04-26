@@ -12,7 +12,7 @@ func RegisterGroupRoutes(r *gin.Engine, groupHandler *GroupHandler) {
 
 	// group routes
 	r.POST("/api/groups", auth.JWTAuthMiddleware(), groupHandler.CreateGroup)
-	r.GET("/api/groups/:id", auth.JWTAuthMiddleware(), groupHandler.GetGroupByID)
+	r.GET("/api/groups/:id", auth.JWTAuthMiddleware(), groupHandler.GetGroupByGroupID)
 	r.PUT("/api/groups/:id", auth.JWTAuthMiddleware(), groupHandler.UpdateGroup)
 	r.DELETE("/api/groups/:id", auth.JWTAuthMiddleware(), groupHandler.DeleteGroup)
 	r.GET("/api/groups", auth.JWTAuthMiddleware(), groupHandler.ListGroups)
