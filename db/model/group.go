@@ -3,6 +3,8 @@
 package model
 
 import (
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -18,7 +20,7 @@ type Group struct {
 	ID			primitive.ObjectID	`bson:"_id,omitempty" json:"id,omitempty"`                 // MongoDB ObjectId
 	GroupName	string				`bson:"group_name" json:"group_name"`
 	Members		[]GroupMember		`bson:"members" json:"members"`
-	CreatedAt   primitive.DateTime 	`bson:"created_at,omitempty" json:"created_at,omitempty"`	// timestamp
+	CreatedAt   time.Time	 		`bson:"created_at,omitempty" json:"created_at,omitempty"`	// timestamp
 }
 
 
