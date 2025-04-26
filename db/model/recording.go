@@ -10,7 +10,7 @@ import (
 
 type Recording struct {
 	ID            primitive.ObjectID	`bson:"_id,omitempty" json:"id,omitempty"`                 // MongoDB ObjectId
-	RecordingID   int                	`bson:"recording_id" json:"recording_id"`                  // auto-increment ID
+	RecordingID   string				`bson:"recording_id" json:"recording_id"`                  // auto-increment ID
 	UserID        int                	`bson:"user_id" json:"user_id"`                            // ref. struct 'User'
 	RecordingURL  string             	`bson:"recording_url" json:"recording_url"`                // 음성 파일 GCS URL
 	RecordingText string             	`bson:"recording_text,omitempty" json:"recording_text"`    // SpeechToText 결과물 (NULL by default)
