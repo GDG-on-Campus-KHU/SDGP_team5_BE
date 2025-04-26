@@ -218,3 +218,36 @@ func (h *GroupHandler) GetMyGroups(c *gin.Context) {
 
 	util.RespondSuccess(c, groups)
 }
+
+
+// GET /api/groups/{id}/members
+// @Summary Get members of a specific group
+// @Description Retrieve the members of a group by its ID
+// @Tags groups
+// @Accept json
+// @Produce json
+// @Param id path string true "Group ID"
+// @Success 200 {object} model.GroupMembersResponse "List of members in the group"
+// @Failure 400 {object} map[string]string "Invalid group ID format"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/groups/{id}/members [get]
+func (h *GroupHandler) GetGroupMembers(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	// extract 'GroupID'
+	groupIDStr := c.Param("id")
+	groupID, err := primitive.ObjectIDFromHex(groupIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid group ID format")
+		return
+	}
+
+	// group에 포함된 member 가져오기
+	groupMembers, err := h.service.GetGroupMembers(ctx, groupID)
+	if err != nil {
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, groupMembers)
+}

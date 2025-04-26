@@ -17,5 +17,9 @@ func RegisterGroupRoutes(r *gin.Engine, groupHandler *GroupHandler) {
 	r.DELETE("/api/groups/:id", auth.JWTAuthMiddleware(), groupHandler.DeleteGroup)
 	r.GET("/api/groups", auth.JWTAuthMiddleware(), groupHandler.ListGroups)
 
+	// get all groups for logged-in user
 	r.GET("/api/groups/me", auth.JWTAuthMiddleware(), groupHandler.GetMyGroups)
+
+	// group members routes
+	r.GET("/api/groups/:id/members", auth.JWTAuthMiddleware(), groupHandler.GetGroupMembers)
 }

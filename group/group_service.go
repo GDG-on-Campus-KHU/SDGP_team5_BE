@@ -157,3 +157,8 @@ func (s *GroupService) GetGroupsByUserID(ctx context.Context, userID string) ([]
 
 	return groups, nil
 }
+
+// GetGroupMembers retrieves members of a group by its ID
+func (s *GroupService) GetGroupMembers(ctx context.Context, groupID primitive.ObjectID) (*model.GroupMembersResponse, error) {
+	return s.repo.GetGroupMembers(ctx, groupID)
+}
