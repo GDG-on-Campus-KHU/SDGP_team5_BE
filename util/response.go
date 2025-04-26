@@ -27,7 +27,6 @@ func RespondBadRequest(c *gin.Context, message string) {
 // 401 Unauthorized
 func RespondUnauthorized(c *gin.Context, message string) {
 	c.JSON(http.StatusUnauthorized, gin.H{
-		"success": false,
 		"error":   message,
 	})
 }
