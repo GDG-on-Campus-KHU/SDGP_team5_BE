@@ -189,3 +189,32 @@ func (h *GroupHandler) ListGroups(c *gin.Context) {
 	}
 	util.RespondSuccess(c, groups)
 }
+
+
+// GET /api/groups/me
+// @Summary Get all groups for the logged-in user
+// @Description Retrieve the groups the logged-in user belongs to
+// @Tags groups
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.Group "List of groups the user belongs to"
+// @Failure 401 {object} map[string]string "Unauthorized access"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/groups/me [get]
+func (h *GroupHandler) GetMyGroups(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	userID, err := util.GetUserIDFromContext(c)
+	if err != nil {
+		util.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	groups, err := h.service.GetGroupsByUserID(ctx, userID)
+	if err != nil {
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, groups)
+}
