@@ -767,6 +767,66 @@
                 }
             }
         },
+        "/api/recordings": {
+            "post": {
+                "description": "Upload an audio recording for a user. The file will be saved and processed for transcription.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "recordings"
+                ],
+                "summary": "Upload a new recording",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Audio file to be uploaded",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recording uploaded successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, invalid file or user",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/situation/actions/case/{slug}/{language}": {
             "get": {
                 "description": "Retrieve the actions for a specific situation based on its slug (text-based ID).",

@@ -607,6 +607,47 @@ paths:
       summary: Get all groups for the logged-in user
       tags:
       - groups
+  /api/recordings:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload an audio recording for a user. The file will be saved and
+        processed for transcription.
+      parameters:
+      - description: Audio file to be uploaded
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Recording uploaded successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request, invalid file or user
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized access
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Upload a new recording
+      tags:
+      - recordings
   /situation/actions/{index}/{language}:
     get:
       consumes:
