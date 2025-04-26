@@ -11,17 +11,15 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
+
+	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
 )
 
 // GCS bucket에 음성 녹음 파일 업로드하고 file URL을 return
 func UploadFileToGCS(file *multipart.FileHeader, userID string) (string, error) {
 	// GCS client
 	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return "", fmt.Errorf("failed to create client: %v", err)
-	}
-	defer client.Close()
+	client := dbConfig.GCSClient
 
 	// GCS bucket
 	bucketName := "resq-upload-bucket"
@@ -44,8 +42,15 @@ func UploadFileToGCS(file *multipart.FileHeader, userID string) (string, error) 
 	if _, err := io.Copy(dst, srcFile); err != nil {
 		return "", fmt.Errorf("failed to copy file to GCS: %v", err)
 	}
+	
 	if err := dst.Close(); err != nil {
 		return "", fmt.Errorf("failed to close GCS writer: %v", err)
+	}
+
+	// public read access
+	object := bucket.Object(fileName)
+	if err := object.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
+		return "", fmt.Errorf("failed to set ACL for public read: %v", err)
 	}
 
 	// return GCS file URL
