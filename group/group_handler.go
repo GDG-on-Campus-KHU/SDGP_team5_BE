@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/util"
 )
 
@@ -22,6 +21,10 @@ func NewGroupHandler(service *GroupService) *GroupHandler {
 
 type CreateGroupRequest struct {
 	GroupName string `json:"group_name" binding:"required"`
+}
+
+type UpdateGroupRequest struct {
+	GroupName string `json:"group_name"`
 }
 
 
@@ -89,18 +92,18 @@ func (h *GroupHandler) GetGroupByGroupID(c *gin.Context) {
 }
 
 
-// PUT /api/groups/{id}
+// PATCH /api/groups/{id}
 // @Summary Update a group
-// @Description Update a group's name by its ID
+// @Description Update a group's name by its ID (Partial update)
 // @Tags groups
 // @Accept json
 // @Produce json
 // @Param id path string true "Group ID"
-// @Param request body CreateGroupRequest true "Updated group name"
+// @Param request body UpdateGroupRequest true "Updated group name"
 // @Success 200 {object} map[string]string "Group updated"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/groups/{id} [put]
+// @Router /api/groups/{id} [patch]
 func (h *GroupHandler) UpdateGroup(c *gin.Context) {
 	ctx := c.Request.Context()
 
@@ -117,16 +120,25 @@ func (h *GroupHandler) UpdateGroup(c *gin.Context) {
 		return
 	}
 
-	group := &model.Group{
-		ID:        objID,
-		GroupName: updateReq.GroupName,
+	group, err := h.service.GetGroupByGroupID(ctx, objID)
+	if err != nil {
+		util.RespondInternalError(c, "Error fetching group")
+		return
+	}
+	if group == nil {
+		util.RespondNotFound(c, "Group not found")
+		return
+	}
+
+	if updateReq.GroupName != "" {
+		group.GroupName = updateReq.GroupName
 	}
 
 	if err := h.service.UpdateGroup(ctx, group); err != nil {
 		util.RespondInternalError(c, err.Error())
 		return
 	}
-	util.RespondSuccess(c, gin.H{"message": "Group updated"})
+	util.RespondSuccess(c, gin.H{"message": "Group name updated"})
 }
 
 
