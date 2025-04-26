@@ -103,7 +103,7 @@ func main() {
 	fmt.Printf("Server is running at http://%s\n", serverAddress)
 	fmt.Printf("Swagger UI available at http://%s/swagger\n", serverAddress)
 
-	if err := r.Run(":5100"); err != nil {
+	if err := r.Run(":" + port); err != nil {
 		fmt.Println("Error starting server:", err)
 	}
 }
