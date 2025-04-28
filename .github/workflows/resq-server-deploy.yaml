@@ -80,5 +80,4 @@ jobs:
                 docker rm ${{ secrets.CONTAINER_NAME }} || true
     
                 # 새 컨테이너 실행
-                docker pull asia-northeast3-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/resq-server:latest
-                docker run -d --name ${{ secrets.CONTAINER_NAME }} -p 5100:5100 asia-northeast3-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/resq-server:latest
+                docker run -d --pull=always --name ${{ secrets.CONTAINER_NAME }} -p 5100:5100 asia-northeast3-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/resq-server:latest
