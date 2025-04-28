@@ -1,10 +1,11 @@
-package handler
+// situation/situation_handler.go
+
+package situation
 
 import (
 	"net/http"
 	"strconv"
 
-	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +19,7 @@ import (
 // @Success 200 {object} model.Situation "Successfully retrieved situation and actions"
 // @Failure 400 {object} map[string]string "error message"
 // @Failure 404 {object} map[string]string "error message"
-// @Router /situation/actions/{index}/{language} [get]
+// @Router /api/situation/actions/{index}/{language} [get]
 func GetActionsByIndex(c *gin.Context) {
 	indexStr := c.Param("index")
 	language := c.Param("language")
@@ -30,7 +31,7 @@ func GetActionsByIndex(c *gin.Context) {
 		return
 	}
 
-	situation, err := service.GetSituationByIndex(index, language)
+	situation, err := GetSituationByIndex(index, language)
 	if err != nil {
 		c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
 		return
@@ -48,12 +49,12 @@ func GetActionsByIndex(c *gin.Context) {
 // @Param language path string true "Language" default(en)
 // @Success 200 {object} model.Situation "Successfully retrieved situation and actions"
 // @Failure 404 {object} map[string]string "error message"
-// @Router /situation/actions/case/{slug}/{language} [get]
+// @Router /api/situation/actions/case/{slug}/{language} [get]
 func GetActionsBySlug(c *gin.Context) {
 	slug := c.Param("slug")
 	language := c.Param("language")
 
-	situation, err := service.GetSituationBySlug(slug, language)
+	situation, err := GetSituationBySlug(slug, language)
 	if err != nil {
 		c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
 		return

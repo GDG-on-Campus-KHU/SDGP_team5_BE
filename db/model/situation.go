@@ -1,4 +1,4 @@
-// situation/model/situation.go
+// situation/situation_model.go
 
 package model
 

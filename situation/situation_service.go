@@ -1,13 +1,14 @@
-// situation/service/situation_service.go
+// situation/situation_service.go
 
-package service
+package situation
 
 import (
 	"context"
 	"fmt"
 
 	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
-	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation/model"
+	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
