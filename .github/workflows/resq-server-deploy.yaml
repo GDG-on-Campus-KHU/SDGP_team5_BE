@@ -12,72 +12,91 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Copy env file
+      - name: Debug Secrets Access
         run: |
-          echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> .env
-          echo "GOOGLE_AUTH_CLIENT_ID=$GOOGLE_AUTH_CLIENT_ID" >> .env
-          echo "GOOGLE_AUTH_CLIENT_SECRET=$GOOGLE_AUTH_CLIENT_SECRET" >> .env
-          echo "GOOGLE_AUTH_REDIRECT_URL=$GOOGLE_AUTH_REDIRECT_URL" >> .env
-          echo "GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS_LOCATION" >> .env
-          echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> .env
-          echo "MONGO_URI=$MONGO_URI" >> .env
+          echo "Checking if secrets are injected properly..."
+          echo "GEMINI_API_KEY: ${GEMINI_API_KEY:+set}"
+          echo "GOOGLE_AUTH_CLIENT_ID: ${GOOGLE_AUTH_CLIENT_ID:+set}"
+          echo "GOOGLE_AUTH_CLIENT_SECRET: ${GOOGLE_AUTH_CLIENT_SECRET:+set}"
+          echo "GOOGLE_AUTH_REDIRECT_URL: ${GOOGLE_AUTH_REDIRECT_URL:+set}"
+          echo "GOOGLE_CREDENTIALS_LOCATION: ${GOOGLE_CREDENTIALS_LOCATION:+set}"
+          echo "JWT_SECRET_KEY: ${JWT_SECRET_KEY:+set}"
+          echo "MONGO_URI: ${MONGO_URI:+set}"
         env:
-          GEMINI_API_KEY: ${{secrets.GEMINI_API_KEY}}
-          GOOGLE_AUTH_CLIENT_ID: ${{secrets.GOOGLE_AUTH_CLIENT_ID}}
-          GOOGLE_AUTH_CLIENT_SECRET: ${{secrets.GOOGLE_AUTH_CLIENT_SECRET}}
-          GOOGLE_AUTH_REDIRECT_URL: ${{secrets.GOOGLE_AUTH_REDIRECT_URL}}
-          GOOGLE_CREDENTIALS_LOCATION: ${{secrets.GOOGLE_CREDENTIALS_LOCATION}}
-          JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
-          MONGO_URI: ${{secrets.MONGO_URI}}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_AUTH_CLIENT_ID: ${{ secrets.GOOGLE_AUTH_CLIENT_ID }}
+          GOOGLE_AUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_AUTH_CLIENT_SECRET }}
+          GOOGLE_AUTH_REDIRECT_URL: ${{ secrets.GOOGLE_AUTH_REDIRECT_URL }}
+          GOOGLE_CREDENTIALS_LOCATION: ${{ secrets.GOOGLE_CREDENTIALS_LOCATION }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
 
-      # server account key 
-      - name: Copy Google Credentials
-        env:
-          OCCUPY_SECRET: ${{ secrets.GOOGLE_CREDENTIALS }}
-          OCCUPY_SECRET_DIR: config
-          OCCUPY_SECRET_DIR_FILE_NAME: google-credentials.json
-        run: |
-            mkdir -p $OCCUPY_SECRET_DIR
-            echo $OCCUPY_SECRET | base64 --decode > $OCCUPY_SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
+  #     - name: Copy env file
+  #       run: |
+  #         echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> .env
+  #         echo "GOOGLE_AUTH_CLIENT_ID=$GOOGLE_AUTH_CLIENT_ID" >> .env
+  #         echo "GOOGLE_AUTH_CLIENT_SECRET=$GOOGLE_AUTH_CLIENT_SECRET" >> .env
+  #         echo "GOOGLE_AUTH_REDIRECT_URL=$GOOGLE_AUTH_REDIRECT_URL" >> .env
+  #         echo "GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS_LOCATION" >> .env
+  #         echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> .env
+  #         echo "MONGO_URI=$MONGO_URI" >> .env
+  #       env:
+  #         GEMINI_API_KEY: ${{secrets.GEMINI_API_KEY}}
+  #         GOOGLE_AUTH_CLIENT_ID: ${{secrets.GOOGLE_AUTH_CLIENT_ID}}
+  #         GOOGLE_AUTH_CLIENT_SECRET: ${{secrets.GOOGLE_AUTH_CLIENT_SECRET}}
+  #         GOOGLE_AUTH_REDIRECT_URL: ${{secrets.GOOGLE_AUTH_REDIRECT_URL}}
+  #         GOOGLE_CREDENTIALS_LOCATION: ${{secrets.GOOGLE_CREDENTIALS_LOCATION}}
+  #         JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
+  #         MONGO_URI: ${{secrets.MONGO_URI}}
 
-      - name: Install Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.23.1'
+  #     # server account key 
+  #     - name: Copy Google Credentials
+  #       env:
+  #         OCCUPY_SECRET: ${{ secrets.GOOGLE_CREDENTIALS }}
+  #         OCCUPY_SECRET_DIR: config
+  #         OCCUPY_SECRET_DIR_FILE_NAME: google-credentials.json
+  #       run: |
+  #           mkdir -p $OCCUPY_SECRET_DIR
+  #           echo $OCCUPY_SECRET | base64 --decode > $OCCUPY_SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
 
-      - name: Push Docker Image to GAR
-        uses: a94763075/push-to-gar-github-action@v0.3.1
-        with:
-          gcloud_service_key: ${{ secrets.GOOGLE_CREDENTIALS }}
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-          registry: ${{ secrets.GAR_REGISTRY }}
-          repository: ${{ secrets.GAR_REPOSITORY }}
-          image_name: 'resq-server'
-          image_tags: 'latest'
-          dockerfile: './Dockerfile'
-          free_docker_build_parameter: '--no-cache'
+  #     - name: Install Go
+  #       uses: actions/setup-go@v4
+  #       with:
+  #         go-version: '1.23.1'
+
+  #     - name: Push Docker Image to GAR
+  #       uses: a94763075/push-to-gar-github-action@v0.3.1
+  #       with:
+  #         gcloud_service_key: ${{ secrets.GOOGLE_CREDENTIALS }}
+  #         project_id: ${{ secrets.GCP_PROJECT_ID }}
+  #         registry: ${{ secrets.GAR_REGISTRY }}
+  #         repository: ${{ secrets.GAR_REPOSITORY }}
+  #         image_name: 'resq-server'
+  #         image_tags: 'latest'
+  #         dockerfile: './Dockerfile'
+  #         free_docker_build_parameter: '--no-cache'
           
-  deploy:
-    runs-on: ubuntu-22.04
-    needs: build-and-push
-    steps:
-      - name: Deploy to GCE
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.GCE_INSTANCE_IP }}
-          username: ${{ secrets.GCE_SSH_USER }}
-          key: ${{ secrets.GCE_SSH_PRIVATE_KEY }}
-          script: |
-                # 인증 파일을 디코딩해서 gcloud 인증
-                echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 --decode > /tmp/google-credentials.json
-                gcloud auth activate-service-account --key-file=/tmp/google-credentials.json
-                gcloud auth configure-docker asia-northeast3-docker.pkg.dev
+  # deploy:
+  #   runs-on: ubuntu-22.04
+  #   needs: build-and-push
+  #   steps:
+  #     - name: Deploy to GCE
+  #       uses: appleboy/ssh-action@master
+  #       with:
+  #         host: ${{ secrets.GCE_INSTANCE_IP }}
+  #         username: ${{ secrets.GCE_SSH_USER }}
+  #         key: ${{ secrets.GCE_SSH_PRIVATE_KEY }}
+  #         script: |
+  #               # 인증 파일을 디코딩해서 gcloud 인증
+  #               echo "${{ secrets.GOOGLE_CREDENTIALS }}" | base64 --decode > /tmp/google-credentials.json
+  #               gcloud auth activate-service-account --key-file=/tmp/google-credentials.json
+  #               gcloud auth configure-docker asia-northeast3-docker.pkg.dev
     
-                rm -f /tmp/google-credentials.json
+  #               rm -f /tmp/google-credentials.json
     
-                # 기존 컨테이너 중지 및 삭제
-                docker stop ${{ secrets.CONTAINER_NAME }} || true
-                docker rm ${{ secrets.CONTAINER_NAME }} || true
+  #               # 기존 컨테이너 중지 및 삭제
+  #               docker stop ${{ secrets.CONTAINER_NAME }} || true
+  #               docker rm ${{ secrets.CONTAINER_NAME }} || true
     
-                # 새 컨테이너 실행
-                docker run -d --pull=always --name ${{ secrets.CONTAINER_NAME }} -p 5100:5100 asia-northeast3-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/resq-server:latest
+  #               # 새 컨테이너 실행
+  #               docker run -d --pull=always --name ${{ secrets.CONTAINER_NAME }} -p 5100:5100 asia-northeast3-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/resq-server:latest
