@@ -53,7 +53,7 @@ jobs:
           registry: ${{ secrets.GAR_REGISTRY }}
           repository: ${{ secrets.GAR_REPOSITORY }}
           image_name: 'resq-server'
-          image_tags: 'latest,stable'
+          image_tags: 'latest'
           dockerfile: './Dockerfile'
           free_docker_build_parameter: '--no-cache'
           
