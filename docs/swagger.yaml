@@ -648,7 +648,7 @@ paths:
       summary: Upload a new recording
       tags:
       - recordings
-  /situation/actions/{index}/{language}:
+  /api/situation/actions/{index}/{language}:
     get:
       consumes:
       - application/json
@@ -688,7 +688,7 @@ paths:
       summary: Get Actions by Situation Index
       tags:
       - situation
-  /situation/actions/case/{slug}/{language}:
+  /api/situation/actions/case/{slug}/{language}:
     get:
       consumes:
       - application/json

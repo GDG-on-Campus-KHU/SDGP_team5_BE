@@ -833,7 +833,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/situation/actions/case/{slug}/{language}": {
+        "/api/situation/actions/case/{slug}/{language}": {
             "get": {
                 "description": "Retrieve the actions for a specific situation based on its slug (text-based ID).",
                 "consumes": [
@@ -882,7 +882,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/situation/actions/{index}/{language}": {
+        "/api/situation/actions/{index}/{language}": {
             "get": {
                 "description": "Retrieve the actions for a specific situation based on its index (numerical ID).",
                 "consumes": [
