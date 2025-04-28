@@ -17,6 +17,7 @@ RUN apk --no-cache add ca-certificates bash
 WORKDIR /app
 
 COPY --from=builder /app /app
+COPY . .
 
 EXPOSE 5100
 
