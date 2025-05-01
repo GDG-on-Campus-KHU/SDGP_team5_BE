@@ -1,0 +1,725 @@
+basePath: /
+definitions:
+  group.CreateGroupRequest:
+    properties:
+      group_name:
+        type: string
+    required:
+    - group_name
+    type: object
+  group.InviteRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  group.UpdateGroupRequest:
+    properties:
+      group_name:
+        type: string
+    type: object
+  model.ActionStep:
+    properties:
+      details:
+        items:
+          type: string
+        type: array
+      step:
+        type: string
+    type: object
+  model.Group:
+    properties:
+      created_at:
+        description: timestamp
+        type: string
+      group_name:
+        type: string
+      id:
+        description: MongoDB ObjectId
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/model.GroupMember'
+        type: array
+    type: object
+  model.GroupMember:
+    properties:
+      email:
+        type: string
+      invited_by:
+        type: integer
+      status:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.GroupMembersResponse:
+    properties:
+      group_id:
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/model.GroupMember'
+        type: array
+      name:
+        type: string
+    type: object
+  model.MultiLangActions:
+    additionalProperties:
+      items:
+        $ref: '#/definitions/model.ActionStep'
+      type: array
+    type: object
+  model.MultilingualArray:
+    additionalProperties:
+      items:
+        type: string
+      type: array
+    type: object
+  model.MultilingualText:
+    additionalProperties:
+      type: string
+    type: object
+  model.Situation:
+    properties:
+      actions:
+        $ref: '#/definitions/model.MultiLangActions'
+      description:
+        $ref: '#/definitions/model.MultilingualArray'
+      emer_title:
+        $ref: '#/definitions/model.MultilingualText'
+      emoji:
+        type: string
+      index:
+        type: integer
+      slug:
+        type: string
+    type: object
+host: localhost:5100
+info:
+  contact: {}
+  description: API documentation
+  title: SDGP-team5-ResQ-BE
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: check if the server is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Server is running
+          schema:
+            type: string
+      summary: check server status
+      tags:
+      - Status
+  /api/auth/callback:
+    get:
+      description: Handles the callback from Google after user grants permission,
+        generates JWT.
+      parameters:
+      - description: Authorization Code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Missing code
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to fetch user info or generate JWT
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Google OAuth2 Callback
+      tags:
+      - auth
+  /api/auth/login:
+    get:
+      description: Redirects the user to Google login page for authentication.
+      produces:
+      - application/json
+      responses:
+        "307":
+          description: Redirect to Google OAuth2 login
+          schema:
+            type: string
+      summary: Google OAuth2 Login
+      tags:
+      - auth
+  /api/auth/protected:
+    get:
+      description: Returns user info if the provided JWT token is valid. If the token
+        is invalid or expired, the request is unauthorized.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Authorized"  // Successful response with user info
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized"  // Unauthorized if token is invalid or missing
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth  // This indicates the need for a Bearer token in the Authorization header: []
+      summary: Protected route that requires a valid JWT token
+      tags:
+      - auth
+  /api/auth/refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Accepts a valid refresh token and issues a new access token if
+        the refresh token is valid. The refresh token should be passed in the request
+        body.
+      parameters:
+      - description: The refresh token used to generate a new access token
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: access_token"  // Returns the newly generated access token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request"  // Invalid or malformed request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid refresh token"  // If the refresh token is invalid
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Could not generate access token"  // If there is an issue generating
+            the access token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refreshes the access token using a valid refresh token
+      tags:
+      - auth
+  /api/groups:
+    get:
+      description: Get a list of all groups
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of groups
+          schema:
+            items:
+              $ref: '#/definitions/model.Group'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all groups
+      tags:
+      - groups
+    post:
+      consumes:
+      - application/json
+      description: Create a group with a specified name
+      parameters:
+      - description: Group name
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/group.CreateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Group created successfully
+          schema:
+            $ref: '#/definitions/model.Group'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new group
+      tags:
+      - groups
+  /api/groups/{id}:
+    delete:
+      description: Delete a group by its ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Group deleted
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid group ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a group
+      tags:
+      - groups
+    get:
+      description: Retrieve a group's information using its ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Group found
+          schema:
+            $ref: '#/definitions/model.Group'
+        "400":
+          description: Invalid group ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a group by ID
+      tags:
+      - groups
+    patch:
+      consumes:
+      - application/json
+      description: Update a group's name by its ID (Partial update)
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated group name
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/group.UpdateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Group updated
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a group
+      tags:
+      - groups
+  /api/groups/{id}/accept:
+    post:
+      consumes:
+      - application/json
+      description: Accept an invitation to join a group by group ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID
+        in: body
+        name: userID
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Invite accepted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Accept an invitation to join a group
+      tags:
+      - groups
+  /api/groups/{id}/invite:
+    post:
+      consumes:
+      - application/json
+      description: Invite a user to join a specific group by email
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Invite user request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/group.InviteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User invited successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Invite a user to a group
+      tags:
+      - groups
+  /api/groups/{id}/members:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the members of a group by its ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of members in the group
+          schema:
+            $ref: '#/definitions/model.GroupMembersResponse'
+        "400":
+          description: Invalid group ID format
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get members of a specific group
+      tags:
+      - groups
+  /api/groups/{id}/members/me:
+    delete:
+      consumes:
+      - application/json
+      description: Current user leaves the group
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully left the group
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Leave a group
+      tags:
+      - groups
+  /api/groups/{id}/reject:
+    post:
+      consumes:
+      - application/json
+      description: Reject an invitation to join a specific group by group ID
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID
+        in: body
+        name: userID
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Invite rejected successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Reject an invitation to join a group
+      tags:
+      - groups
+  /api/groups/me:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the groups the logged-in user belongs to
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of groups the user belongs to
+          schema:
+            items:
+              $ref: '#/definitions/model.Group'
+            type: array
+        "401":
+          description: Unauthorized access
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all groups for the logged-in user
+      tags:
+      - groups
+  /api/recordings:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload an audio recording for a user. The file will be saved and
+        processed for transcription.
+      parameters:
+      - description: Audio file to be uploaded
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Recording uploaded successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request, invalid file or user
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized access
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Upload a new recording
+      tags:
+      - recordings
+  /api/situation/actions/{index}/{language}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the actions for a specific situation based on its index
+        (numerical ID).
+      parameters:
+      - description: Situation Index
+        in: path
+        name: index
+        required: true
+        type: integer
+      - default: en
+        description: Language
+        in: path
+        name: language
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved situation and actions
+          schema:
+            $ref: '#/definitions/model.Situation'
+        "400":
+          description: error message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: error message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Actions by Situation Index
+      tags:
+      - situation
+  /api/situation/actions/case/{slug}/{language}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the actions for a specific situation based on its slug
+        (text-based ID).
+      parameters:
+      - description: Situation Slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      - default: en
+        description: Language
+        in: path
+        name: language
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved situation and actions
+          schema:
+            $ref: '#/definitions/model.Situation'
+        "404":
+          description: error message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Actions by Situation Slug
+      tags:
+      - situation
+swagger: "2.0"
