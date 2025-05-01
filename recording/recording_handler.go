@@ -135,3 +135,91 @@ func SyncSttRecordingHandler(c *gin.Context) {
 		"recording_url": recordingURL,
 	})
 }
+
+
+type RecordingHandler struct {
+	service *RecordingService
+}
+
+func NewRecordingHandler(service *RecordingService) *RecordingHandler {
+	return &RecordingHandler{
+		service: service,
+	}
+}
+
+// GET /api/recordings/me
+// @Summary Get all recordings for the logged-in user
+// @Description Retrieve the recordings of the logged-in user
+// @Tags recordings
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.Recording "List of recordings the user owns"
+// @Failure 401 {object} map[string]string "Unauthorized access"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/recordings/me [get]
+func (h *RecordingHandler) GetMyRecordings(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	userIDStr, err := coreUtil.GetUserIDFromContext(c)
+	if err != nil {
+		coreUtil.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		coreUtil.RespondUnauthorized(c, "Invalid user ID")
+		return
+	}
+
+	recordings, err := h.service.GetRecordingsByUserID(ctx, userID)
+	if err != nil {
+		coreUtil.RespondInternalError(c, "Failed to retrieve recordings")
+		return
+	}
+
+	coreUtil.RespondSuccess(c, recordings)
+}
+
+
+// GET /api/recordings/{id}
+// @Summary Get a specific recording by ID for the logged-in user
+// @Description Retrieve a recording by its ID for the logged-in user
+// @Tags recordings
+// @Accept json
+// @Produce json
+// @Param id path string true "Recording ID"
+// @Success 200 {object} model.Recording "The requested recording"
+// @Failure 401 {object} map[string]string "Unauthorized access"
+// @Failure 404 {object} map[string]string "Recording not found"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/recordings/{id} [get]
+func (h *RecordingHandler) GetRecordingByID(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	userIDStr, err := coreUtil.GetUserIDFromContext(c)
+	if err != nil {
+		coreUtil.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		coreUtil.RespondUnauthorized(c, "Invalid user ID")
+		return
+	}
+
+	recordingID := c.Param("id")
+
+	recording, err := h.service.GetRecordingByID(ctx, userID, recordingID)
+	if err != nil {
+		if err.Error() == "recording not found" {
+			coreUtil.RespondNotFound(c, "Recording not found")
+		} else {
+			coreUtil.RespondInternalError(c, "Failed to retrieve recording")
+		}
+		return
+	}
+
+	coreUtil.RespondSuccess(c, recording)
+}

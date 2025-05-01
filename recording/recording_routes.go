@@ -9,7 +9,10 @@ import (
 )
 
 func RegisterRecordingRoutes(r *gin.Engine) {
-	// r.POST("/api/recordings/upload", auth.JWTAuthMiddleware(), CreateRecording)
-	// r.POST("/api/recordings", auth.JWTAuthMiddleware(), CreateRecordingHandler)
+	recordingService := &RecordingService{}
+	recordingHandler := NewRecordingHandler(recordingService)
+
 	r.POST("/api/recordings/stt", auth.JWTAuthMiddleware(), SyncSttRecordingHandler)
+	r.GET("/api/recordings/me", auth.JWTAuthMiddleware(), recordingHandler.GetMyRecordings)
+	r.GET("/api/recordings/:id", auth.JWTAuthMiddleware(), recordingHandler.GetRecordingByID)
 }
