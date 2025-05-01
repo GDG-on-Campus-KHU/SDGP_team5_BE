@@ -28,6 +28,9 @@ import (
 // @description API documentation
 // @host localhost:5100
 // @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 
 // @Summary check server status
 // @Description check if the server is running
