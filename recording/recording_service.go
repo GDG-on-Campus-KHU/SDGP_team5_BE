@@ -9,22 +9,23 @@ import (
 	"mime/multipart"
 	"strconv"
 	"time"
+	"io"
+	"os"
 
 	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/recording/util"
+	coreUtil "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/util"
 )
 
 // recording data
-func NewRecording(userID int, countryCode string, recordingURL string) *model.Recording {
+func NewRecording(userID int, recordingURL string) *model.Recording {
 	recordingID := generateRecordingID(userID)
 
 	return &model.Recording{
 		RecordingID:   recordingID,
 		UserID:        userID,
 		RecordingURL:  recordingURL,
-		RecordingText: "",				// 'NULL' by default until SpeechToText result is available
-		CountryCode:   countryCode,
 		CreatedAt:     time.Now(),
 	}
 }
@@ -36,26 +37,97 @@ func generateRecordingID(userID int) string {
 }
 
 
-func SaveRecording(ctx context.Context, userID int, countryCode string, file *multipart.FileHeader) (*model.Recording, error) {
-	// upload file to GCS
+func ShortRecordingService(ctx context.Context, userID int, file *multipart.FileHeader) (string, string, error) {
+	user, err := coreUtil.GetUserByUserID(ctx, userID)
+	if err != nil {
+		return "", "", fmt.Errorf("user not found: %v", err)
+	}
+
+	openedFile, err := file.Open()
+	if err != nil {
+		return "", "", fmt.Errorf("failed to open file: %v", err)
+	}
+	defer openedFile.Close()
+
+	fileBytes, err := io.ReadAll(openedFile)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to read file: %v", err)
+	}
+
+	// temporary file
+	tempFilename := fmt.Sprintf("tmp/%d_%s", time.Now().Unix(), file.Filename)
+	err = os.WriteFile(tempFilename, fileBytes, 0644)
+	if err != nil {
+		return "", "", fmt.Errorf("failed to write temp file: %v", err)
+	}
+	defer os.Remove(tempFilename)  // clean up temporary file
+
+	languageCode := coreUtil.AppLangToLangCode(user.AppLang)
+
+	// request synchonously Speech-to-Text
+	sttResult, err := util.SynchronousSpeechToText(tempFilename, languageCode)
+	if err != nil {
+		return "", "", fmt.Errorf("speech to text failed: %v", err)
+	}
+
+	log.Printf("STT Result: %v", sttResult) 
+
+	// file upload to GCS
 	recordingURL, err := util.UploadFileToGCS(file, fmt.Sprintf("%d", userID))
 	if err != nil {
-		log.Printf("GCS Upload Error: %v", err)
-		return nil, fmt.Errorf("failed to upload file to GCS: %v", err)
+		log.Printf("file upload failed after STT: %v", err)
+		return "", "", fmt.Errorf("file upload failed: %v", err)
 	}
 
-	// create recording metadata
-	recording := NewRecording(userID, countryCode, recordingURL)
-
-	// integrate with MongoDB collection
+	// save to database
 	collection := dbConfig.RecordingCollection
-
-	// insert recording metadata into MongoDB
-	_, err = collection.InsertOne(ctx, recording)
+	_, err = collection.InsertOne(ctx, map[string]interface{}{
+		"user_id":        userID,
+		"recording_url":  recordingURL,
+		"recording_text": sttResult,
+		"app_lang":       user.AppLang,
+		"created_at":     time.Now(),
+	})
 	if err != nil {
-		log.Printf("MongoDB Insert Error: %v", err)
-		return nil, fmt.Errorf("failed to insert recording into MongoDB: %v", err)
+		return "", "", fmt.Errorf("failed to insert recording into DB: %v", err)
 	}
 
-	return recording, nil
+	return recordingURL, sttResult, nil
+}
+
+
+func CreateRecordingService(ctx context.Context, userID int, file *multipart.FileHeader) (string, error) {
+	user, err := coreUtil.GetUserByUserID(ctx, userID)
+	if err != nil {
+		return "", fmt.Errorf("user not found: %v", err)
+	}
+
+	recordingURL, err := util.UploadFileToGCS(file, fmt.Sprintf("%d", userID))
+	if err != nil {
+		return "", fmt.Errorf("file upload failed: %v", err)
+	}
+	
+
+	languageCode := coreUtil.AppLangToLangCode(user.AppLang)
+
+	go func() {
+		// Speech-to-Text
+		sttResult, err := util.SpeechToText(ctx, util.ConvertHTTPtoGCS(recordingURL), languageCode)
+		if err != nil {
+			log.Printf("Speech to Text failed for recording: %v", err)
+			return
+		}
+
+		collection := dbConfig.RecordingCollection
+		_, err = collection.UpdateOne(
+			ctx,
+			map[string]interface{}{"recording_url": recordingURL},
+			map[string]interface{}{"$set": map[string]interface{}{"recording_text": sttResult}},
+		)
+		if err != nil {
+			log.Printf("Failed to update recording with STT result: %v", err)
+		}
+	}()
+
+	return recordingURL, nil
 }
