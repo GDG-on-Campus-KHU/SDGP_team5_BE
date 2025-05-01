@@ -9,6 +9,8 @@ import (
 	"os"
 	"time"
 	"io"
+	"log"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 
@@ -74,23 +76,37 @@ func SyncSttRecordingHandler(c *gin.Context) {
 	}
 	defer srcFile.Close()
 
-	// temporary file to pass to STT function
-	tempFilePath := fmt.Sprintf("tmp/%d.wav", time.Now().Unix())
-	outFile, err := os.Create(tempFilePath)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temp file"})
-		return
-	}
-	defer outFile.Close()
+
+	// save with original file extension
+	ext := filepath.Ext(fileHeader.Filename)
+    originalPath := fmt.Sprintf("tmp/%d%s", time.Now().Unix(), ext)
+
+    outFile, err := os.Create(originalPath)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temp file"})
+        return
+    }
+    defer outFile.Close()
+
+
+	// copy to temporary file
 	_, err = io.Copy(outFile, srcFile)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to copy uploaded file"})
 		return
 	}
 
+    // convert to 'wav' format
+    convertedPath, err := util.AudioFileConvert(originalPath)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Audio conversion failed"})
+        return
+    }
+
 	// call STT service
-	transcription, err := util.SynchronousSpeechToText(tempFilePath, languageCode)
+	transcription, err := util.SynchronousSpeechToText(convertedPath, languageCode)
 	if err != nil {
+		log.Printf("Error transcribing audio: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to transcribe audio: %v", err)})
 		return
 	}
@@ -201,34 +217,35 @@ func SyncSttRecordingHandler(c *gin.Context) {
 // @Failure      500   {object}  map[string]string  "Internal Server Error"
 // @Router       /api/recordings [post]
 // @Security BearerAuth
-func CreateRecordingHandler(c *gin.Context) {
-	ctx := c.Request.Context()
 
-	userIDStr, err := coreUtil.GetUserIDFromContext(c)
-	if err != nil {
-		coreUtil.RespondUnauthorized(c, "Unauthorized: user ID not found")
-		return
-	}
+// func CreateRecordingHandler(c *gin.Context) {
+// 	ctx := c.Request.Context()
 
-	userID, err := strconv.Atoi(userIDStr)
-	if err != nil {
-		coreUtil.RespondBadRequest(c, "Invalid user ID")
-		return
-	}
+// 	userIDStr, err := coreUtil.GetUserIDFromContext(c)
+// 	if err != nil {
+// 		coreUtil.RespondUnauthorized(c, "Unauthorized: user ID not found")
+// 		return
+// 	}
 
-	file, err := c.FormFile("file")
-	if err != nil {
-		coreUtil.RespondBadRequest(c, "File is required")
-		return
-	}
+// 	userID, err := strconv.Atoi(userIDStr)
+// 	if err != nil {
+// 		coreUtil.RespondBadRequest(c, "Invalid user ID")
+// 		return
+// 	}
 
-	recordingURL, err := CreateRecordingService(ctx, userID, file)
-	if err != nil {
-		coreUtil.RespondInternalError(c, err.Error())
-		return
-	}
+// 	file, err := c.FormFile("file")
+// 	if err != nil {
+// 		coreUtil.RespondBadRequest(c, "File is required")
+// 		return
+// 	}
 
-	coreUtil.RespondSuccess(c, gin.H{
-		"recording_url": recordingURL,
-	})
-}
+// 	recordingURL, err := CreateRecordingService(ctx, userID, file)
+// 	if err != nil {
+// 		coreUtil.RespondInternalError(c, err.Error())
+// 		return
+// 	}
+
+// 	coreUtil.RespondSuccess(c, gin.H{
+// 		"recording_url": recordingURL,
+// 	})
+// }
