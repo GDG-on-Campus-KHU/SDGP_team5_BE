@@ -11,6 +11,11 @@ import (
 	"time"
 	"io"
 	"os"
+	"errors"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
@@ -93,4 +98,56 @@ func ShortRecordingService(ctx context.Context, userID int, file *multipart.File
 	}
 
 	return recordingURL, sttResult, nil
+}
+
+
+type RecordingService struct{}
+
+func (s *RecordingService) GetRecordingsByUserID(ctx context.Context, userID int) ([]model.Recording, error) {
+	var recordings []model.Recording
+
+	filter := bson.M{"user_id": userID}
+	cursor, err := dbConfig.RecordingCollection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var recording model.Recording
+		if err := cursor.Decode(&recording); err != nil {
+			return nil, err
+		}
+		recordings = append(recordings, recording)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return recordings, nil
+}
+
+
+func (s *RecordingService) GetRecordingByID(ctx context.Context, userID int, objectID string) (*model.Recording, error) {
+	objID, err := primitive.ObjectIDFromHex(objectID)
+	if err != nil {
+		return nil, errors.New("invalid recording id format")
+	}
+
+	filter := bson.M{
+		"_id":     objID,
+		"user_id": userID,
+	}
+
+	var recording model.Recording
+	err = dbConfig.RecordingCollection.FindOne(ctx, filter).Decode(&recording)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.New("recording not found")
+		}
+		return nil, err
+	}
+
+	return &recording, nil
 }
