@@ -43,8 +43,7 @@ func SynchronousSpeechToText(filePath string, languageCode string) (string, erro
 	req := &speechpb.RecognizeRequest{
 		Config: &speechpb.RecognitionConfig{
 			Encoding:        speechpb.RecognitionConfig_LINEAR16,
-			// SampleRateHertz: 16000,
-			SampleRateHertz: 44100,  // audio sample rate
+			SampleRateHertz: 44100,  // audio sample rate (previously 16000)
 			LanguageCode: languageCode,
 		},
 		Audio: &speechpb.RecognitionAudio{
