@@ -130,8 +130,8 @@ func SyncSttRecordingHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"transcription":  transcription,
-		"recording_url":  recordingURL,
+	coreUtil.RespondSuccess(c, gin.H{
+		"transcription": transcription,
+		"recording_url": recordingURL,
 	})
 }
