@@ -31,5 +31,5 @@ type User struct {
 	InfoID      int				`bson:"info_id" json:"info_id"`				// ref. struct 'MedicalInfo'
 
 	GroupIDs  []string			`bson:"group_ids" json:"group_ids"`
-	Favorites []int				`bson:"favorites" json:"favorites"`			// situation index
+	Favorites []int32			`bson:"favorites" json:"favorites"`			// situation index
 }
