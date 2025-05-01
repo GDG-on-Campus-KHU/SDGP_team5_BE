@@ -21,3 +21,6 @@
 
 # credentials
 /config/
+
+# swagger docs
+/docs/
