@@ -36,13 +36,14 @@ func UploadFileToGCS(file *multipart.FileHeader, userID string) (string, error) 
 	}
 	defer srcFile.Close()
 
-	// file upload
+	// file upload to GCS
 	dst := bucket.Object(fileName).NewWriter(ctx)
 	dst.ContentType = file.Header.Get("Content-Type")
+
 	if _, err := io.Copy(dst, srcFile); err != nil {
 		return "", fmt.Errorf("failed to copy file to GCS: %v", err)
 	}
-	
+
 	if err := dst.Close(); err != nil {
 		return "", fmt.Errorf("failed to close GCS writer: %v", err)
 	}

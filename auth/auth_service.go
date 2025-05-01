@@ -58,7 +58,7 @@ func CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
 		user.GroupIDs = []string{}
 	}
 	if user.Favorites == nil {
-		user.Favorites = []int{}
+		user.Favorites = []int32{}
 	}
 	if user.AppLang == "" {
 		user.AppLang = "ko"
