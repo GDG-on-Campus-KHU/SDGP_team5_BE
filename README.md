@@ -47,8 +47,11 @@
 ```
 .
 ├── 🔒 auth/
+├── 👥 group/
 ├── 🌍 language/
+├── 🎤 recording/
 ├── 🚑 situation/
+├── 🔧 util/
 ├── db
 │   ├── gcs.go
 │   └── mongo.go

@@ -14,21 +14,10 @@ jobs:
 
       - name: Copy env file
         run: |
-          echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> .env
-          echo "GOOGLE_AUTH_CLIENT_ID=$GOOGLE_AUTH_CLIENT_ID" >> .env
-          echo "GOOGLE_AUTH_CLIENT_SECRET=$GOOGLE_AUTH_CLIENT_SECRET" >> .env
-          echo "GOOGLE_AUTH_REDIRECT_URL=$GOOGLE_AUTH_REDIRECT_URL" >> .env
-          echo "GOOGLE_CREDENTIALS=$GOOGLE_CREDENTIALS_LOCATION" >> .env
-          echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> .env
-          echo "MONGO_URI=$MONGO_URI" >> .env
+          echo "$ENV" > .env
+
         env:
-          GEMINI_API_KEY: ${{secrets.GEMINI_API_KEY}}
-          GOOGLE_AUTH_CLIENT_ID: ${{secrets.GOOGLE_AUTH_CLIENT_ID}}
-          GOOGLE_AUTH_CLIENT_SECRET: ${{secrets.GOOGLE_AUTH_CLIENT_SECRET}}
-          GOOGLE_AUTH_REDIRECT_URL: ${{secrets.GOOGLE_AUTH_REDIRECT_URL}}
-          GOOGLE_CREDENTIALS_LOCATION: ${{secrets.GOOGLE_CREDENTIALS_LOCATION}}
-          JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
-          MONGO_URI: ${{secrets.MONGO_URI}}
+          ENV: ${{ secrets.ENV }}
 
       # server account key 
       - name: Copy Google Credentials
@@ -53,7 +42,7 @@ jobs:
           registry: ${{ secrets.GAR_REGISTRY }}
           repository: ${{ secrets.GAR_REPOSITORY }}
           image_name: 'resq-server'
-          image_tags: 'latest,stable'
+          image_tags: 'latest'
           dockerfile: './Dockerfile'
           free_docker_build_parameter: '--no-cache'
           
@@ -80,4 +69,4 @@ jobs:
                 docker rm ${{ secrets.CONTAINER_NAME }} || true
     
                 # 새 컨테이너 실행
-                docker run -d --name ${{ secrets.CONTAINER_NAME }} -p 5100:5100 asia-northeast3-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/resq-server:latest
+                docker run -d --pull=always --name ${{ secrets.CONTAINER_NAME }} -p 5100:5100 asia-northeast3-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/resq-server:latest
