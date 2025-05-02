@@ -51,3 +51,22 @@ func (r *userRepositoryMongo) GetFavorites(ctx context.Context, userID int) ([]i
 
 	return user.Favorites, nil
 }
+
+func (r *userRepositoryMongo) DeleteFavorite(ctx context.Context, userID int, situationIndex int) error {
+	filter := bson.M{
+		"user_id": userID,
+	}
+
+	update := bson.M{
+		"$pull": bson.M{
+			"favorites": situationIndex,
+		},
+	}
+
+	result, err := r.collection.UpdateOne(ctx, filter, update)
+
+	if result.ModifiedCount == 0 {
+		return fmt.Errorf("not in favorites")
+	}
+	return err
+}

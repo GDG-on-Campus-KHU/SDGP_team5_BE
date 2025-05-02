@@ -37,7 +37,7 @@ func (h *FavoriteHandler) AddFavorite(c *gin.Context) {
 	situationIndexStr := c.Param("index")
 	situationIndex, err := strconv.Atoi(situationIndexStr)
 	if err != nil {
-		util.RespondBadRequest(c, "Invalid situation ID")
+		util.RespondBadRequest(c, "Invalid situation Index")
 		return
 	}
 
@@ -98,4 +98,47 @@ func (h *FavoriteHandler) GetFavorites(c *gin.Context) {
 	}
 
 	util.RespondSuccess(c, favorites)
+}
+
+// DELETE /api/favorites/:id
+// @Summary Delete a favorite
+// @Description Delete a favorite using its Index
+// @Tags favorites
+// @Accept json
+// @Produce json
+// @Param id path string true "Situation Index"
+// @Success 200
+// @Router /api/favorites/{index} [delete]
+func (h *FavoriteHandler) DeleteFavorite(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	situationIndexStr := c.Param("index")
+	situationIndex, err := strconv.Atoi(situationIndexStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid situation Index")
+		return
+	}
+
+	userIDStr, err := util.GetUserIDFromContext(c)
+	if err != nil {
+		util.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	userId, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid user ID")
+		return
+	}
+
+	if err := h.service.DeleteFavorite(ctx, userId, situationIndex); err != nil {
+		if err.Error() == "not in favorites" {
+			util.RespondBadRequest(c, "Not in favorites")
+			return
+		}
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, "Favorite deleted successfully")
 }

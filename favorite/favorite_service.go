@@ -32,3 +32,8 @@ func (s *FavoriteService) AddFavorite(ctx context.Context, userID int, situation
 func (s *FavoriteService) GetFavorites(ctx context.Context, userID int) ([]int, error) {
 	return s.repo.GetFavorites(ctx, userID)
 }
+
+// DeleteFavorite get a favorite list
+func (s *FavoriteService) DeleteFavorite(ctx context.Context, userID int, situationIndex int) error {
+	return s.repo.DeleteFavorite(ctx, userID, situationIndex)
+}
