@@ -64,3 +64,38 @@ func (h *FavoriteHandler) AddFavorite(c *gin.Context) {
 
 	util.RespondSuccess(c, "Favorite added successfully")
 }
+
+// GET /api/favorites
+// @Summary Get a list of favorites
+// @Description Get a list of favorites for the authenticated user
+// @Tags favorites
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]string "Invalid user ID"
+// @Failure 401 {object} map[string]string "Unauthorized access"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/favorites [get]
+func (h *FavoriteHandler) GetFavorites(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	userIDStr, err := util.GetUserIDFromContext(c)
+	if err != nil {
+		util.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	userId, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid user ID")
+		return
+	}
+
+	favorites, err := h.service.GetFavorites(ctx, userId)
+	if err != nil {
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, favorites)
+}

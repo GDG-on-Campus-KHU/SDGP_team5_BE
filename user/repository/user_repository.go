@@ -8,4 +8,5 @@ import (
 
 type UserRepository interface {
 	AddFavorite(ctx context.Context, userID int, situationIndex int) error
+	GetFavorites(ctx context.Context, userID int) ([]int, error)
 }

@@ -16,6 +16,10 @@ type userRepositoryMongo struct {
 	collection *mongo.Collection
 }
 
+type User struct {
+	Favorites []int `bson:"favorites"`
+}
+
 // constructor function
 func NewUserRepository() UserRepository {
 	return &userRepositoryMongo{
@@ -36,4 +40,14 @@ func (r *userRepositoryMongo) AddFavorite(ctx context.Context, userID int, situa
 		return fmt.Errorf("already in favorites")
 	}
 	return err
+}
+
+func (r *userRepositoryMongo) GetFavorites(ctx context.Context, userID int) ([]int, error) {
+	var user User
+	err := r.collection.FindOne(ctx, bson.M{"user_id": userID}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user.Favorites, nil
 }

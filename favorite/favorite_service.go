@@ -27,3 +27,8 @@ func NewFavoriteService(repo repository.UserRepository) *FavoriteService {
 func (s *FavoriteService) AddFavorite(ctx context.Context, userID int, situationIndex int) error {
 	return s.repo.AddFavorite(ctx, userID, situationIndex)
 }
+
+// GetFavorites get a favorite list
+func (s *FavoriteService) GetFavorites(ctx context.Context, userID int) ([]int, error) {
+	return s.repo.GetFavorites(ctx, userID)
+}
