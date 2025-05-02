@@ -28,6 +28,7 @@ func NewFavoriteHandler(service *FavoriteService) *FavoriteHandler {
 // @Success 200 {object} map[string]string "Favorite added successfully"
 // @Failure 400 {object} map[string]string "Invalid situation ID or user ID"
 // @Failure 401 {object} map[string]string "Unauthorized access"
+// @Failure 403 {object} map[string]string "Already in favorites"
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /api/favorites/{id} [post]
 func (h *FavoriteHandler) AddFavorite(c *gin.Context) {
@@ -53,6 +54,10 @@ func (h *FavoriteHandler) AddFavorite(c *gin.Context) {
 	}
 
 	if err := h.service.AddFavorite(ctx, userId, situationIndex); err != nil {
+		if err.Error() == "already in favorites" {
+			util.RespondBadRequest(c, "Already in favorites")
+			return
+		}
 		util.RespondInternalError(c, err.Error())
 		return
 	}

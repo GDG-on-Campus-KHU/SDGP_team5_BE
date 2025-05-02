@@ -4,6 +4,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
 
@@ -24,11 +25,15 @@ func NewUserRepository() UserRepository {
 
 func (r *userRepositoryMongo) AddFavorite(ctx context.Context, userID int, situationIndex int) error {
 	update := bson.M{
-		"$push": bson.M{
+		"$addToSet": bson.M{
 			"favorites": situationIndex,
 		},
 	}
 
-	_, err := r.collection.UpdateOne(ctx, bson.M{"user_id": userID}, update)
+	result, err := r.collection.UpdateOne(ctx, bson.M{"user_id": userID}, update)
+
+	if result.ModifiedCount == 0 {
+		return fmt.Errorf("already in favorites")
+	}
 	return err
 }
