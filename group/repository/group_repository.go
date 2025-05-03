@@ -24,4 +24,6 @@ type GroupRepository interface {
 	RejectInvite(ctx context.Context, groupID primitive.ObjectID, userID int) error
 	
 	LeaveGroup(ctx context.Context, groupID primitive.ObjectID, userID int) error
+
+	GetPendingGroups(ctx context.Context, userID int) ([]*model.Group, error)
 }

@@ -91,10 +91,50 @@ func (r *groupRepositoryMongo) GetGroupMembers(ctx context.Context, groupID prim
 
 
 func (r *groupRepositoryMongo) InviteUser(ctx context.Context, groupID primitive.ObjectID, inviterUserID int, inviteeEmail string) error {
+	var user model.User
+	err := dbConfig.UserCollection.FindOne(ctx, bson.M{"email": inviteeEmail}).Decode(&user)
+	if err != nil {
+		return fmt.Errorf("failed to find user with email %s: %w", inviteeEmail, err)
+	}
+
+	count, err := r.collection.CountDocuments(ctx, bson.M{
+		"_id": groupID,
+		"members": bson.M{
+			"$elemMatch": bson.M{
+				"user_id": user.UserID,
+				"status":  "pending",
+			},
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to check existing invitation: %w", err)
+	}
+	if count > 0 {
+		return fmt.Errorf("user is already invited")
+	}
+
+	count, err = r.collection.CountDocuments(ctx, bson.M{
+		"_id": groupID,
+		"members": bson.M{
+			"$elemMatch": bson.M{
+				"user_id": user.UserID,
+				"status":  "accepted",
+			},
+		},
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to check existing membership: %w", err)
+	}
+
+	if count > 0 {
+		return fmt.Errorf("user is already a member of the group")
+	}
+
 	update := bson.M{
 		"$push": bson.M{
 			"members": bson.M{
-				"user_id":   0,
+				"user_id":   user.UserID,
 				"email":     inviteeEmail,
 				"status":    "pending",
 				"invited_by": inviterUserID,
@@ -102,12 +142,13 @@ func (r *groupRepositoryMongo) InviteUser(ctx context.Context, groupID primitive
 		},
 	}
 
-	_, err := r.collection.UpdateOne(ctx, bson.M{"_id": groupID}, update)
+	_, err = r.collection.UpdateOne(ctx, bson.M{"_id": groupID}, update)
 	return err
 }
 
 
 func (r *groupRepositoryMongo) AcceptInvite(ctx context.Context, groupID primitive.ObjectID, userID int) error {
+
 	filter := bson.M{
 		"_id": groupID,
 		"members.email": bson.M{"$exists": true},
@@ -122,7 +163,7 @@ func (r *groupRepositoryMongo) AcceptInvite(ctx context.Context, groupID primiti
 
 	arrayFilters := options.Update().SetArrayFilters(options.ArrayFilters{
 		Filters: []interface{}{
-			bson.M{"elem.status": "pending", "elem.user_id": 0},
+			bson.M{"elem.status": "pending"},
 		},
 	})
 
@@ -132,6 +173,7 @@ func (r *groupRepositoryMongo) AcceptInvite(ctx context.Context, groupID primiti
 
 
 func (r *groupRepositoryMongo) RejectInvite(ctx context.Context, groupID primitive.ObjectID, userID int) error {
+
 	filter := bson.M{
 		"_id": groupID,
 	}
@@ -149,10 +191,8 @@ func (r *groupRepositoryMongo) RejectInvite(ctx context.Context, groupID primiti
 	return err
 }
 
+
 func (r *groupRepositoryMongo) LeaveGroup(ctx context.Context, groupID primitive.ObjectID, userID int) error {
-	filter := bson.M{
-		"_id": groupID,
-	}
 
 	update := bson.M{
 		"$pull": bson.M{
@@ -162,7 +202,7 @@ func (r *groupRepositoryMongo) LeaveGroup(ctx context.Context, groupID primitive
 		},
 	}
 
-	_, err := r.collection.UpdateOne(ctx, filter, update)
+	_, err := r.collection.UpdateOne(ctx, bson.M{"_id": groupID}, update)
 	return err
 }
 
@@ -181,4 +221,37 @@ func (r *groupRepositoryMongo) GetUserEmailByID(ctx context.Context, groupID pri
 	}
 
 	return "", fmt.Errorf("user with user_id %d not found in group", userID)
+}
+
+
+func (r *groupRepositoryMongo) GetPendingGroups(ctx context.Context, userID int) ([]*model.Group, error) {
+	filter := bson.M{
+		"members": bson.M{
+			"$elemMatch": bson.M{
+				"user_id": userID,
+				"status":  "pending",
+			},
+		},
+	}
+
+	cursor, err := r.collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var groups []*model.Group
+	for cursor.Next(ctx) {
+		var group model.Group
+		if err := cursor.Decode(&group); err != nil {
+			return nil, err
+		}
+		groups = append(groups, &group)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return groups, nil
 }
