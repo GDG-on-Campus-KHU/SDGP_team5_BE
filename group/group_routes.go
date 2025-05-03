@@ -30,4 +30,7 @@ func RegisterGroupRoutes(r *gin.Engine, groupHandler *GroupHandler) {
 
 	// leave group route
 	r.DELETE("/api/groups/:id/members/me", auth.JWTAuthMiddleware(), groupHandler.LeaveGroup)
+
+	// pending group route
+	r.GET("/api/groups/pending/me", auth.JWTAuthMiddleware(), groupHandler.GetPendingGroups)
 }
