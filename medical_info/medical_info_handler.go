@@ -69,7 +69,7 @@ func (h *MedicalInfoHandler) CreateMedicalInfo(c *gin.Context) {
 	util.RespondSuccess(c, medical_info)
 }
 
-// GET /api/medical-info
+// GET /api/medical-info/me
 // @Summary Get medical info
 // @Description Get medical info
 // @Tags medical_info
@@ -79,8 +79,42 @@ func (h *MedicalInfoHandler) CreateMedicalInfo(c *gin.Context) {
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 401 {object} map[string]string "Unauthorized access"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/medical-info [get]
+// @Router /api/medical-info/me [get]
 func (h *MedicalInfoHandler) GetMedicalInfo(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	userIDStr, err := util.GetUserIDFromContext(c)
+	if err != nil {
+		util.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid user ID")
+		return
+	}
+
+	medical_info, err := h.service.GetMedicalInfo(ctx, userID)
+	if err != nil {
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, medical_info)
+}
+
+// GET /api/medical-info/:id
+// @Summary Get medical info by ID
+// @Description Get medical info by user ID
+// @Tags medical_info
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]string "Medical info retrieved successfully"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/medical-info/:id [get]
+func (h *MedicalInfoHandler) GetMedicalInfoByID(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	userIDStr := c.Param("id")
