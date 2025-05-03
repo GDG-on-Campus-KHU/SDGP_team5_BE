@@ -16,8 +16,16 @@ type userRepositoryMongo struct {
 	collection *mongo.Collection
 }
 
-type User struct {
+type Favorites struct {
 	Favorites []int `bson:"favorites"`
+}
+
+type UserInfoResponse struct {
+	UserID      int    `bson:"user_id"`
+	CountryCode string `bson:"country_code"`
+	Name        string `bson:"name"`
+	Email       string `bson:"email"`
+	AppLang     string `bson:"app_lang"`
 }
 
 // constructor function
@@ -27,6 +35,42 @@ func NewUserRepository() UserRepository {
 	}
 }
 
+// User methods
+func (r *userRepositoryMongo) GetUserInfo(ctx context.Context, userID int) (*UserInfoResponse, error) {
+	var userInfoResponse UserInfoResponse
+	err := r.collection.FindOne(ctx, bson.M{"user_id": userID}).Decode(&userInfoResponse)
+	if err != nil {
+		return nil, err
+	}
+	return &userInfoResponse, nil
+}
+
+func (r *userRepositoryMongo) UpdateCountry(ctx context.Context, userID int, countryCode string) (*UserInfoResponse, error) {
+	update := bson.M{
+		"$set": bson.M{
+			"country_code": countryCode,
+		},
+	}
+
+	result, err := r.collection.UpdateOne(ctx, bson.M{"user_id": userID}, update)
+	if err != nil {
+		return nil, err
+	}
+	if result.MatchedCount == 0 {
+		return nil, fmt.Errorf("user with user_id %d not found", userID)
+	}
+	if result.ModifiedCount == 0 {
+		return nil, fmt.Errorf("user with user_id %d already has country_code %s", userID, countryCode)
+	}
+	var userInfoResponse UserInfoResponse
+	err = r.collection.FindOne(ctx, bson.M{"user_id": userID}).Decode(&userInfoResponse)
+	if err != nil {
+		return nil, err
+	}
+	return &userInfoResponse, nil
+}
+
+// Favorite methods
 func (r *userRepositoryMongo) AddFavorite(ctx context.Context, userID int, situationIndex int) error {
 	update := bson.M{
 		"$addToSet": bson.M{
@@ -43,13 +87,13 @@ func (r *userRepositoryMongo) AddFavorite(ctx context.Context, userID int, situa
 }
 
 func (r *userRepositoryMongo) GetFavorites(ctx context.Context, userID int) ([]int, error) {
-	var user User
-	err := r.collection.FindOne(ctx, bson.M{"user_id": userID}).Decode(&user)
+	var favorites Favorites
+	err := r.collection.FindOne(ctx, bson.M{"user_id": userID}).Decode(&favorites)
 	if err != nil {
 		return nil, err
 	}
 
-	return user.Favorites, nil
+	return favorites.Favorites, nil
 }
 
 func (r *userRepositoryMongo) DeleteFavorite(ctx context.Context, userID int, situationIndex int) error {

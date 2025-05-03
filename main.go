@@ -24,6 +24,7 @@ import (
 	medicalInfoRepository "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/medical_info/repository"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/recording"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation"
+	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/user"
 	userRepository "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/user/repository"
 )
 
@@ -109,6 +110,10 @@ func main() {
 	favoriteService := favorite.NewFavoriteService(userRepo)
 	favoriteHandler := favorite.NewFavoriteHandler(favoriteService)
 	favorite.RegisterFavoriteRoutes(r, favoriteHandler)
+
+	userService := user.NewUserService(userRepo)
+	userHandler := user.NewUserHandler(userService)
+	user.RegisterUserRoutes(r, userHandler)
 
 	medicalInfoRepo := medicalInfoRepository.NewMedicalInfoRepository()
 	medicalInfoService := medical_info.NewMedicalInfoService(medicalInfoRepo)
