@@ -19,6 +19,7 @@ var UserCollection *mongo.Collection
 var CountryCollection *mongo.Collection
 var RecordingCollection *mongo.Collection
 var GroupCollection *mongo.Collection
+var MedicalInfoCollection *mongo.Collection
 
 func InitMongo() {
 	uri := os.Getenv("MONGO_URI")
@@ -50,4 +51,5 @@ func InitMongo() {
 	CountryCollection = Client.Database("resq").Collection("countries")
 	RecordingCollection = Client.Database("resq").Collection("recordings")
 	GroupCollection = Client.Database("resq").Collection("groups")
+	MedicalInfoCollection = Client.Database("resq").Collection("medical_infos")
 }

@@ -13,6 +13,7 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/docs"
+	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/medical_info"
 
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/auth"
 	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
@@ -20,6 +21,7 @@ import (
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/group"
 	groupRepository "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/group/repository"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/language"
+	medicalInfoRepository "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/medical_info/repository"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/recording"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation"
 	userRepository "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/user/repository"
@@ -107,6 +109,11 @@ func main() {
 	favoriteService := favorite.NewFavoriteService(userRepo)
 	favoriteHandler := favorite.NewFavoriteHandler(favoriteService)
 	favorite.RegisterFavoriteRoutes(r, favoriteHandler)
+
+	medicalInfoRepo := medicalInfoRepository.NewMedicalInfoRepository()
+	medicalInfoService := medical_info.NewMedicalInfoService(medicalInfoRepo)
+	medicalInfoHandler := medical_info.NewMedicalInfoHandler(medicalInfoService)
+	medical_info.RegisterMedicalInfoRoutes(r, medicalInfoHandler)
 
 	r.POST("/translate", gin.WrapF(language.TranslateHandler))
 
