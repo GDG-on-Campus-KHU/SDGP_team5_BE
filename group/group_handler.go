@@ -309,17 +309,6 @@ func (h *GroupHandler) InviteUser(c *gin.Context) {
 
 
 // POST /api/groups/{id}/accept
-// @Summary Accept an invitation to join a group
-// @Description Accept an invitation to join a group by group ID
-// @Tags groups
-// @Accept json
-// @Produce json
-// @Param id path string true "Group ID"
-// @Param userID body int true "User ID"
-// @Success 200 {string} string "Invite accepted successfully"
-// @Failure 400 {object} map[string]string "Bad request"
-// @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/groups/{id}/accept [post]
 func (h *GroupHandler) AcceptInvite(c *gin.Context) {
 	ctx := c.Request.Context()
 	groupIDStr := c.Param("id")
@@ -353,17 +342,6 @@ func (h *GroupHandler) AcceptInvite(c *gin.Context) {
 
 
 // POST /api/groups/{id}/reject
-// @Summary Reject an invitation to join a group
-// @Description Reject an invitation to join a specific group by group ID
-// @Tags groups
-// @Accept json
-// @Produce json
-// @Param id path string true "Group ID"
-// @Param userID body int true "User ID"
-// @Success 200 {string} string "Invite rejected successfully"
-// @Failure 400 {object} map[string]string "Bad request"
-// @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/groups/{id}/reject [post]
 func (h *GroupHandler) RejectInvite(c *gin.Context) {
 	ctx := c.Request.Context()
 	groupIDStr := c.Param("id")

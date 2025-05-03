@@ -5,6 +5,7 @@ package repository
 import (
 	"context"
 	"time"
+	"fmt"
 
 	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
@@ -163,4 +164,21 @@ func (r *groupRepositoryMongo) LeaveGroup(ctx context.Context, groupID primitive
 
 	_, err := r.collection.UpdateOne(ctx, filter, update)
 	return err
+}
+
+
+func (r *groupRepositoryMongo) GetUserEmailByID(ctx context.Context, groupID primitive.ObjectID, userID int) (string, error) {
+	var group model.Group
+	err := r.collection.FindOne(ctx, bson.M{"_id": groupID}).Decode(&group)
+	if err != nil {
+		return "", fmt.Errorf("failed to find group: %v", err)
+	}
+
+	for _, member := range group.Members {
+		if member.UserID == userID {
+			return member.Email, nil
+		}
+	}
+
+	return "", fmt.Errorf("user with user_id %d not found in group", userID)
 }

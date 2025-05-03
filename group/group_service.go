@@ -7,6 +7,8 @@ import (
 	"log"
 	"strconv"
 	"time"
+	"fmt"
+	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -163,20 +165,81 @@ func (s *GroupService) GetGroupMembers(ctx context.Context, groupID primitive.Ob
 	return s.repo.GetGroupMembers(ctx, groupID)
 }
 
+
 // InviteUserToGroup invites a user to a group
 func (s *GroupService) InviteUserToGroup(ctx context.Context, groupID primitive.ObjectID, inviterUserID int, inviteeEmail string) error {
-	return s.repo.InviteUser(ctx, groupID, inviterUserID, inviteeEmail)
+	group, err := s.repo.GetByID(ctx, groupID)
+	if err != nil {
+		return fmt.Errorf("failed to find group: %v", err)
+	}
+
+	// 초대하려는 사용자가 이미 그룹에 있는지 확인
+	for _, member := range group.Members {
+		if member.Email == inviteeEmail {
+			return fmt.Errorf("user is already a member of the group")
+		}
+	}
+
+	// 사용자가 이미 초대받았는지 확인
+	for _, member := range group.Members {
+		if member.Email == inviteeEmail && member.Status == "pending" {
+			return fmt.Errorf("user is already invited to the group")
+		}
+	}
+
+	err = s.repo.InviteUser(ctx, groupID, inviterUserID, inviteeEmail)
+	if err != nil {
+		return fmt.Errorf("failed to invite user: %v", err)
+	}
+
+	return nil
 }
 
 // AcceptGroupInvite accepts an invitation to join a group
 func (s *GroupService) AcceptGroupInvite(ctx context.Context, groupID primitive.ObjectID, userID int) error {
+	group, err := s.repo.GetByID(ctx, groupID)
+	if err != nil {
+		return err
+	}
+
+	found := false
+	for _, member := range group.Members {
+		if member.UserID == 0 && member.Status == "pending" && member.Email != "" {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return errors.New("no pending invitation found for this user")
+	}
+
 	return s.repo.AcceptInvite(ctx, groupID, userID)
 }
 
+
 // RejectGroupInvite rejects an invitation to join a group
 func (s *GroupService) RejectGroupInvite(ctx context.Context, groupID primitive.ObjectID, userID int) error {
+	group, err := s.repo.GetByID(ctx, groupID)
+	if err != nil {
+		return err
+	}
+
+	found := false
+	for _, member := range group.Members {
+		if member.UserID == userID && member.Status == "pending" {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return errors.New("no pending invitation found for this user")
+	}
+
 	return s.repo.RejectInvite(ctx, groupID, userID)
 }
+
 
 // LeaveGroup allows a user to leave a group
 func (s *GroupService) LeaveGroup(ctx context.Context, groupID primitive.ObjectID, userID int) error {
