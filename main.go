@@ -77,6 +77,8 @@ func main() {
 
 	r := gin.Default()
 
+	r.Static("/static", "./")
+
 	// CORS middleware
 	r.Use(func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
