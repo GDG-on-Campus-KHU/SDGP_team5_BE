@@ -243,5 +243,21 @@ func (s *GroupService) RejectGroupInvite(ctx context.Context, groupID primitive.
 
 // LeaveGroup allows a user to leave a group
 func (s *GroupService) LeaveGroup(ctx context.Context, groupID primitive.ObjectID, userID int) error {
-	return s.repo.LeaveGroup(ctx, groupID, userID)
+	err := s.repo.LeaveGroup(ctx, groupID, userID)
+	if err != nil {
+		return err
+	}
+
+	return s.removeGroupFromUser(ctx, userID, groupID)
+}
+
+func (s *GroupService) removeGroupFromUser(ctx context.Context, userID int, groupID primitive.ObjectID) error {
+	update := bson.M{
+		"$pull": bson.M{
+			"group_ids": groupID.Hex(),
+		},
+	}
+
+	_, err := dbConfig.UserCollection.UpdateOne(ctx, bson.M{"user_id": userID}, update)
+	return err
 }
