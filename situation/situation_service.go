@@ -28,6 +28,7 @@ func GetSituationByIndex(index int, language string) (*model.Situation, error) {
 		return nil, fmt.Errorf("error retrieving situation: %v", err)
 	}
 
+	situation.EmerTitle = filterLanguageTitle(situation.EmerTitle, language)
 	situation.Description = filterLanguageContent(situation.Description, language)
 	situation.Actions = filterActionSteps(situation.Actions, language)
 
@@ -49,10 +50,27 @@ func GetSituationBySlug(slug string, language string) (*model.Situation, error) 
 		return nil, fmt.Errorf("error retrieving situation: %v", err)
 	}
 
+	situation.EmerTitle = filterLanguageTitle(situation.EmerTitle, language)
 	situation.Description = filterLanguageContent(situation.Description, language)
 	situation.Actions = filterActionSteps(situation.Actions, language)
 
 	return &situation, nil
+}
+
+func filterLanguageTitle(content map[string]string, language string) map[string]string {
+	if content == nil {
+		return nil
+	}
+
+	if title, exists := content[language]; exists {
+		return map[string]string{language: title}
+	}
+
+	if title, exists := content["en"]; exists {
+		return map[string]string{"en": title}
+	}
+
+	return nil
 }
 
 // filter based on the requested language
