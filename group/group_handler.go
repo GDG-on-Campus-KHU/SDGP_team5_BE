@@ -415,3 +415,38 @@ func (h *GroupHandler) LeaveGroup(c *gin.Context) {
 
 	util.RespondSuccess(c, "User left the group successfully")
 }
+
+
+// GET /api/groups/pending/me
+// @Summary Get pending groups for the current user
+// @Description Retrieves all groups where the user has a pending invite
+// @Tags groups
+// @Accept json
+// @Produce json
+// @Success 200 {object} []model.Group "Pending groups"
+// @Failure 400 {object} map[string]string "Bad request"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/groups/pending/me [get]
+func (h *GroupHandler) GetPendingGroups(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	userIDStr, err := util.GetUserIDFromContext(c)
+	if err != nil {
+		util.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid user ID format")
+		return
+	}
+
+	groups, err := h.service.GetPendingGroups(ctx, userID)
+	if err != nil {
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, groups)
+}

@@ -204,7 +204,7 @@ func (s *GroupService) AcceptGroupInvite(ctx context.Context, groupID primitive.
 
 	found := false
 	for _, member := range group.Members {
-		if member.UserID == 0 && member.Status == "pending" && member.Email != "" {
+		if member.UserID == userID && member.Status == "pending" {
 			found = true
 			break
 		}
@@ -214,7 +214,19 @@ func (s *GroupService) AcceptGroupInvite(ctx context.Context, groupID primitive.
 		return errors.New("no pending invitation found for this user")
 	}
 
-	return s.repo.AcceptInvite(ctx, groupID, userID)
+	err = s.repo.AcceptInvite(ctx, groupID, userID)
+	if err != nil {
+		return err
+	}
+
+	update := bson.M{
+		"$push": bson.M{
+			"group_ids": groupID.Hex(),
+		},
+	}
+
+	_, err = dbConfig.UserCollection.UpdateOne(ctx, bson.M{"user_id": userID}, update)
+	return err
 }
 
 
@@ -260,4 +272,10 @@ func (s *GroupService) removeGroupFromUser(ctx context.Context, userID int, grou
 
 	_, err := dbConfig.UserCollection.UpdateOne(ctx, bson.M{"user_id": userID}, update)
 	return err
+}
+
+
+// GetPendingGroups retrieves groups with pending invites for a specific user
+func (s *GroupService) GetPendingGroups(ctx context.Context, userID int) ([]*model.Group, error) {
+    return s.repo.GetPendingGroups(ctx, userID)
 }
