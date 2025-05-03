@@ -24,3 +24,5 @@
 
 # swagger docs
 /docs/
+
+*.html

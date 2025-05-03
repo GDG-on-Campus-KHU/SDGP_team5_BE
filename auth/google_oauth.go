@@ -35,7 +35,7 @@ type GoogleUserInfo struct {
 	Email string `json:"email"`
 }
 
-func GetGoogleUserInfo(code string) (*GoogleUserInfo, error) {
+func GetUserInfo(code string) (*GoogleUserInfo, error) {
 	token, err := GoogleOAuthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, err
