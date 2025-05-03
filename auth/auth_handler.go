@@ -12,6 +12,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
+	// dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
 )
 
 // GET /api/auth/login
@@ -50,7 +51,7 @@ func CallbackHandler(c *gin.Context) {
 		return
 	}
 
-	userInfo, err := GetGoogleUserInfo(code)
+	userInfo, err := GetUserInfo(code)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user info"})
 		return
