@@ -1,6 +1,6 @@
 // language/gemini.go
 
-package language
+package translation
 
 import (
 	"bytes"
