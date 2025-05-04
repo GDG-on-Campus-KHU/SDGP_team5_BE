@@ -12,6 +12,21 @@ import (
 	"regexp"
 )
 
+
+// request
+type TranslationRequest struct {
+	Text string `json:"text"`
+	// Text       []string `json:"text"
+	TargetLang string `json:"target_lang"` // ex: "ko", "en", "fr"
+}
+
+// response
+type TranslationResponse struct {
+	TranslatedText string `json:"translated_text"`
+	// TranslatedText []string `json:"translated_text"`
+}
+
+
 func TranslateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

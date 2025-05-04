@@ -27,3 +27,29 @@ func AppLangToLangCode(appLang model.CountryLang) string {
 			return "en-US"
 	}
 }
+
+
+func CountryCodeToLangCode(countryCode string) string {
+	switch countryCode {
+		case "KR":
+			return "ko-KR"
+		case "US":
+			return "en-US"
+		case "GB":
+			return "en-GB"
+		case "JP":
+			return "ja-JP"
+		case "CN":
+			return "zh-CN"
+		case "DE":
+			return "de-DE"
+		case "FR":
+			return "fr-FR"
+		case "ES":
+			return "es-ES"
+		case "MX":
+			return "es-MX"
+		default:
+			return "en-US"
+	}
+}

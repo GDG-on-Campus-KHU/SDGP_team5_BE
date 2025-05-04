@@ -122,6 +122,10 @@ func main() {
 	medicalInfoHandler := medical_info.NewMedicalInfoHandler(medicalInfoService)
 	medical_info.RegisterMedicalInfoRoutes(r, medicalInfoHandler)
 
+	translationService := language.NewTranslationService()
+	translationHandler := language.NewTranslationHandler(translationService)
+	language.RegisterLanguageRoutes(r, translationHandler)
+
 	r.POST("/translate", gin.WrapF(language.TranslateHandler))
 
 	// start the server
