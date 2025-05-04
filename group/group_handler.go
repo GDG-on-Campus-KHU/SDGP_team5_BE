@@ -144,7 +144,7 @@ func (h *GroupHandler) UpdateGroup(c *gin.Context) {
 		util.RespondInternalError(c, err.Error())
 		return
 	}
-	util.RespondSuccess(c, gin.H{"message": "Group name updated"})
+	util.RespondSuccess(c, "Group name updated")
 }
 
 
@@ -173,7 +173,7 @@ func (h *GroupHandler) DeleteGroup(c *gin.Context) {
 		util.RespondInternalError(c, err.Error())
 		return
 	}
-	util.RespondSuccess(c, gin.H{"message": "Group deleted"})
+	util.RespondSuccess(c, "Group deleted")
 }
 
 
