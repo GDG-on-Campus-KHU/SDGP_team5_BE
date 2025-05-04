@@ -22,8 +22,8 @@ import (
 
 // Google OAuth2 for Android mobile application
 var GoogleMobileOAuthConfig = &oauth2.Config{
-    ClientID:     os.Getenv("GOOGLE_AUTH_CLIENT_ID"),
-    ClientSecret: os.Getenv("GOOGLE_AUTH_CLIENT_SECRET"),
+    ClientID:     os.Getenv("GOOGLE_WEB_AUTH_CLIENT_ID"),
+    ClientSecret: os.Getenv("GOOGLE_WEB_AUTH_CLIENT_SECRET"),
     RedirectURL:  "",
     Scopes: []string{
         "openid", "email", "profile",
