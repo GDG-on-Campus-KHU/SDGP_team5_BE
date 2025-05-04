@@ -144,7 +144,7 @@ func (h *GroupHandler) UpdateGroup(c *gin.Context) {
 		util.RespondInternalError(c, err.Error())
 		return
 	}
-	util.RespondSuccess(c, gin.H{"message": "Group name updated"})
+	util.RespondSuccess(c, "Group name updated")
 }
 
 
@@ -173,7 +173,7 @@ func (h *GroupHandler) DeleteGroup(c *gin.Context) {
 		util.RespondInternalError(c, err.Error())
 		return
 	}
-	util.RespondSuccess(c, gin.H{"message": "Group deleted"})
+	util.RespondSuccess(c, "Group deleted")
 }
 
 
@@ -309,17 +309,6 @@ func (h *GroupHandler) InviteUser(c *gin.Context) {
 
 
 // POST /api/groups/{id}/accept
-// @Summary Accept an invitation to join a group
-// @Description Accept an invitation to join a group by group ID
-// @Tags groups
-// @Accept json
-// @Produce json
-// @Param id path string true "Group ID"
-// @Param userID body int true "User ID"
-// @Success 200 {string} string "Invite accepted successfully"
-// @Failure 400 {object} map[string]string "Bad request"
-// @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/groups/{id}/accept [post]
 func (h *GroupHandler) AcceptInvite(c *gin.Context) {
 	ctx := c.Request.Context()
 	groupIDStr := c.Param("id")
@@ -353,17 +342,6 @@ func (h *GroupHandler) AcceptInvite(c *gin.Context) {
 
 
 // POST /api/groups/{id}/reject
-// @Summary Reject an invitation to join a group
-// @Description Reject an invitation to join a specific group by group ID
-// @Tags groups
-// @Accept json
-// @Produce json
-// @Param id path string true "Group ID"
-// @Param userID body int true "User ID"
-// @Success 200 {string} string "Invite rejected successfully"
-// @Failure 400 {object} map[string]string "Bad request"
-// @Failure 500 {object} map[string]string "Internal server error"
-// @Router /api/groups/{id}/reject [post]
 func (h *GroupHandler) RejectInvite(c *gin.Context) {
 	ctx := c.Request.Context()
 	groupIDStr := c.Param("id")
@@ -436,4 +414,39 @@ func (h *GroupHandler) LeaveGroup(c *gin.Context) {
 	}
 
 	util.RespondSuccess(c, "User left the group successfully")
+}
+
+
+// GET /api/groups/pending/me
+// @Summary Get pending groups for the current user
+// @Description Retrieves all groups where the user has a pending invite
+// @Tags groups
+// @Accept json
+// @Produce json
+// @Success 200 {object} []model.Group "Pending groups"
+// @Failure 400 {object} map[string]string "Bad request"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /api/groups/pending/me [get]
+func (h *GroupHandler) GetPendingGroups(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	userIDStr, err := util.GetUserIDFromContext(c)
+	if err != nil {
+		util.RespondUnauthorized(c, "Unauthorized access")
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		util.RespondBadRequest(c, "Invalid user ID format")
+		return
+	}
+
+	groups, err := h.service.GetPendingGroups(ctx, userID)
+	if err != nil {
+		util.RespondInternalError(c, err.Error())
+		return
+	}
+
+	util.RespondSuccess(c, groups)
 }
