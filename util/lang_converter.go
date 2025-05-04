@@ -35,6 +35,8 @@ func CountryCodeToLangCode(countryCode string) string {
 			return "ko-KR"
 		case "US":
 			return "en-US"
+		case "GB":
+			return "en-GB"
 		case "JP":
 			return "ja-JP"
 		case "CN":
@@ -45,6 +47,8 @@ func CountryCodeToLangCode(countryCode string) string {
 			return "fr-FR"
 		case "ES":
 			return "es-ES"
+		case "MX":
+			return "es-MX"
 		default:
 			return "en-US"
 	}
