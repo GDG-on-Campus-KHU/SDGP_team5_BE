@@ -6,31 +6,19 @@ import (
 	"context"
 	"fmt"
 	"encoding/json"
+	"net/http"
+	"io"
+	"bytes"
+	"os"
+	"log"
+	"regexp"
+	"strings"
 	
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/util"
 )
 
 
-type TranslatedMedicalInfo struct {
-	BloodType  string `json:"BloodType"`
-	Allergy    string `json:"Allergy"`
-	Medication string `json:"Medication"`
-	Height     string `json:"Height"`
-	Weight     string `json:"Weight"`
-	BirthDate  string `json:"BirthDate"`
-	Notes      string `json:"Notes"`
-}
 
-type MedicalTranslationResponse struct {
-	UserID     int    `json:"user_id"`
-	BloodType  string `json:"blood_type"`
-	Allergy    string `json:"allergy"`
-	Medication string `json:"medication"`
-	Height     string `json:"height"`
-	Weight     string `json:"weight"`
-	BirthDate  string `json:"birth_date"`
-	Notes      string `json:"notes"`
-}
 
 type TranslationService interface {
 	GetTranslatedMedicalInfo(ctx context.Context, userID int) (*MedicalTranslationResponse, error)
@@ -43,55 +31,179 @@ func NewTranslationService() TranslationService {
 }
 
 
+func callGeminiForMedicalInfo(apiKey string, langCode string, medicalInfo map[string]string) (string, error) {
+	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey
+
+	infoJSON, err := json.MarshalIndent(medicalInfo, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal medical info: %v", err)
+	}
+
+	// request prompt
+	prompt := fmt.Sprintf(`
+	Translate the following medical information into %s.
+	
+	- The fields "Allergy", "Medication", and "Notes" should be translated carefully with proper medical terminology and precision.
+	- The field "Name" refers to a person's full name and should be transliterated or adapted to the target language based on cultural or linguistic conventions, rather than translated literally.
+	
+	Return the translated result in JSON format with the same keys as the original:
+	%s
+	`, langCode, string(infoJSON))
+
+	payload := map[string]interface{}{
+		"contents": []map[string]interface{}{
+			{
+				"parts": []map[string]string{
+					{"text": prompt},
+				},
+			},
+		},
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := http.DefaultClient
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	// log.Println("Gemini API Response:", string(bodyBytes))
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		fmt.Println(string(bodyBytes))
+		return "", fmt.Errorf("Gemini API error: %s", string(bodyBytes))
+	}
+
+	var result struct {
+		Candidates []struct {
+			Content struct {
+				Parts []struct {
+					Text string `json:"text"`
+				} `json:"parts"`
+			} `json:"content"`
+		} `json:"candidates"`
+	}
+
+	err = json.Unmarshal(bodyBytes, &result)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse Gemini response: %v", err)
+	}
+
+	if len(result.Candidates) == 0 || len(result.Candidates[0].Content.Parts) == 0 {
+		return "", fmt.Errorf("no translation returned")
+	}
+
+	rawText := result.Candidates[0].Content.Parts[0].Text
+	cleaned := cleanGeminiJSON(rawText)
+
+	return cleaned, nil
+}
+
+
 func (s *translationService) GetTranslatedMedicalInfo(ctx context.Context, userID int) (*MedicalTranslationResponse, error) {
-	user, err := util.GetUserByUserID(ctx, userID)
+	
+	// 요청한 사용자의 기본 정보 조회
+	user, err := util.GetUserByIDFromRequest(ctx, userID)
 	if err != nil {
-		return nil, err
+		log.Println("Failed to find user:", err)
+		return nil, fmt.Errorf("failed to find user: %v", err)
 	}
 
-	medicalInfo, err := util.GetMedicalInfoByID(ctx, user.InfoID)
+	log.Println("User Info ID:", user.InfoID)
+
+	// 해당 사용자의 medical info 조회
+	medicalInfo, err := util.GetMedicalInfoByID(ctx, int32(user.InfoID))
 	if err != nil {
-		return nil, err
+		log.Println("Error fetching medical info:", err)
+		return nil, fmt.Errorf("failed to find medical info: %v", err)
 	}
 
+	if medicalInfo == nil {
+		log.Println("No medical info found for user ID:", userID)
+		return nil, fmt.Errorf("no medical info found")
+	}
+
+	log.Println("Medical info found:", medicalInfo)
+
+	// 사용자의 'country_code'에 따라 번역 언어 결정
 	langCode := util.CountryCodeToLangCode(user.CountryCode)
 
-	prompt := fmt.Sprintf(`
-		Translate the following medical information into %s:
+	// 번역할 필드 (allergy, medication, notes, name)
+	medicalInfoMap := map[string]string{
+		"Allergy":    medicalInfo.Allergy,
+		"Medication": medicalInfo.Medication,
+		"Notes":      medicalInfo.Notes,
+		"Name":       user.Name,
+	}
 
-		{
-			"BloodType": "%s",
-			"Allergy": "%s",
-			"Medication": "%s",
-			"Height": "%.2f cm",
-			"Weight": "%.2f kg",
-			"BirthDate": "%s",
-			"Notes": "%s"
-		}
+	// Gemini API 호출
+	apiKey := os.Getenv("GEMINI_API_KEY")
+	if apiKey == "" {
+		log.Println("Gemini API key is not set")
+		return nil, fmt.Errorf("Gemini API key is not set")
+	}
 
-		Return the result as JSON.
-	`, langCode, medicalInfo.BloodType, medicalInfo.Allergy, medicalInfo.Medication,
-	medicalInfo.Height, medicalInfo.Weight, medicalInfo.BirthDate, medicalInfo.Notes)
-
-	geminiResp, err := callGeminiAPI(prompt)
+	cleanedJSON, err := callGeminiForMedicalInfo(apiKey, langCode, medicalInfoMap)
 	if err != nil {
+		log.Println("Error calling Gemini API:", err)
 		return nil, err
 	}
 
+	// 6. Gemini response 처리
 	var translated TranslatedMedicalInfo
-	err = json.Unmarshal([]byte(geminiResp), &translated)
+	err = json.Unmarshal([]byte(cleanedJSON), &translated)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse Gemini API response: %v", err)
+		return nil, fmt.Errorf("failed to parse Gemini response: %v", err)
 	}
 
-	return &MedicalTranslationResponse{
-		UserID:    userID,
-		BloodType: translated.BloodType,
-		Allergy:   translated.Allergy,
+	// API response 객체 생성
+	response := &MedicalTranslationResponse{
+		UserID:     userID,
+		Name:       translated.Name,
+		Allergy:    translated.Allergy,
 		Medication: translated.Medication,
-		Height:    translated.Height,
-		Weight:    translated.Weight,
-		BirthDate: translated.BirthDate,
-		Notes:     translated.Notes,
-	}, nil
+		Notes:      translated.Notes,
+		BloodType:  string(medicalInfo.BloodType),
+		Height:     medicalInfo.Height,
+		Weight:     medicalInfo.Weight,
+		BirthDate:  medicalInfo.BirthDate,
+	}
+	
+	responseJSON, err := json.MarshalIndent(response, "", "  ")
+	if err != nil {
+		log.Println("Error marshalling response:", err)
+	} else {
+		log.Println("Sending response:", string(responseJSON))
+	}
+
+	return response, nil
+}
+
+
+// Gemini response 추가 처리
+func cleanGeminiJSON(raw string) string {
+	re := regexp.MustCompile("(?s)```json\\s*(.*?)\\s*```")
+	matches := re.FindStringSubmatch(raw)
+	if len(matches) >= 2 {
+		return matches[1]
+	}
+
+	return strings.TrimSpace(raw)
 }
