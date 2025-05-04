@@ -129,9 +129,10 @@ func exchangeAuthCode(authCode, clientID, clientSecret string) (*GoogleTokenResp
         "code":          authCode,
         "client_id":     clientID,
         "client_secret": clientSecret,
-		"redirect_uri": "http://localhost:5100/oauth2callback",
-        // "redirect_uri":  "com.example.resqapp:/oauth2redirect",
-        // "redirect_uri":  secretKey := os.Getenv("GOOGLE_AUTH_REDIRECT_URL"),
+	// "redirect_uri": "  https://res-q.site/oauth2callback",
+	// "redirect_uri": "http://localhost:5100/oauth2callback",
+        // "redirect_uri": "com.example.resqapp:/oauth2redirect",
+        "redirect_uri": os.Getenv("GOOGLE_AUTH_REDIRECT_URL"),
         "grant_type":    "authorization_code",
     }
 
