@@ -4,6 +4,7 @@ package medical_info
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -27,6 +28,16 @@ func NewMedicalInfoService(repo repository.MedicalInfoRepository) *MedicalInfoSe
 
 // CreateMedicalInfo creates a new medical info
 func (s *MedicalInfoService) CreateMedicalInfo(ctx context.Context, userID int, req MedicalInfoRequest) (*model.MedicalInfo, error) {
+	if !model.IsValidBloodType(req.BloodType) {
+		return nil, fmt.Errorf("invalid blood type: %s", req.BloodType)
+	}
+	if !model.IsValidHeightUnit(req.HeightUnit) {
+		return nil, fmt.Errorf("invalid height unit: %s", req.HeightUnit)
+	}
+	if !model.IsValidWeightUnit(req.WeightUnit) {
+		return nil, fmt.Errorf("invalid weight unit: %s", req.WeightUnit)
+	}
+
 	now := time.Now()
 
 	info := &model.MedicalInfo{
@@ -35,7 +46,9 @@ func (s *MedicalInfoService) CreateMedicalInfo(ctx context.Context, userID int, 
 		Allergy:    req.Allergy,
 		Medication: req.Medication,
 		Height:     req.Height,
+		HeightUnit: model.HeightUnit(req.HeightUnit),
 		Weight:     req.Weight,
+		WeightUnit: model.WeightUnit(req.WeightUnit),
 		BirthDate:  req.BirthDate,
 		Notes:      req.Notes,
 		CreatedAt:  now,
@@ -62,6 +75,15 @@ func (s *MedicalInfoService) GetMedicalInfo(ctx context.Context, userID int) (*m
 
 // UpdateMedicalInfo updates medical info by user ID
 func (s *MedicalInfoService) UpdateMedicalInfo(ctx context.Context, userID int, req MedicalInfoRequest) (*model.MedicalInfo, error) {
+	if !model.IsValidBloodType(req.BloodType) {
+		return nil, fmt.Errorf("invalid blood type: %s", req.BloodType)
+	}
+	if !model.IsValidHeightUnit(req.HeightUnit) {
+		return nil, fmt.Errorf("invalid height unit: %s", req.HeightUnit)
+	}
+	if !model.IsValidWeightUnit(req.WeightUnit) {
+		return nil, fmt.Errorf("invalid weight unit: %s", req.WeightUnit)
+	}
 	now := time.Now()
 
 	info := &model.MedicalInfo{
@@ -70,7 +92,9 @@ func (s *MedicalInfoService) UpdateMedicalInfo(ctx context.Context, userID int, 
 		Allergy:    req.Allergy,
 		Medication: req.Medication,
 		Height:     req.Height,
+		HeightUnit: model.HeightUnit(req.HeightUnit),
 		Weight:     req.Weight,
+		WeightUnit: model.WeightUnit(req.WeightUnit),
 		BirthDate:  req.BirthDate,
 		Notes:      req.Notes,
 		UpdatedAt:  now,
