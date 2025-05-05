@@ -24,6 +24,7 @@ import (
 	medicalInfoRepository "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/medical_info/repository"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/recording"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation"
+	situationRepository "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/situation/repository"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/user"
 	userRepository "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/user/repository"
 )
@@ -109,7 +110,8 @@ func main() {
 	group.RegisterGroupRoutes(r, groupHandler)
 
 	userRepo := userRepository.NewUserRepository()
-	favoriteService := favorite.NewFavoriteService(userRepo)
+	situationRepo := situationRepository.NewSituationRepository()
+	favoriteService := favorite.NewFavoriteService(userRepo, situationRepo)
 	favoriteHandler := favorite.NewFavoriteHandler(favoriteService)
 	favorite.RegisterFavoriteRoutes(r, favoriteHandler)
 
