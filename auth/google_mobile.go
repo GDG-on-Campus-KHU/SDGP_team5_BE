@@ -11,14 +11,17 @@ import (
     "os"
     "time"
 	"log"
+    "context"
 
     "github.com/gin-gonic/gin"
     "github.com/golang-jwt/jwt/v4"
     "go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/mongo"
+    "go.mongodb.org/mongo-driver/mongo/options"
 
     dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
+    dbUtil "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/util"
     "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
+    "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/util"
 )
 
 
@@ -105,31 +108,20 @@ func GoogleLoginHandler(c *gin.Context) {
     }
 
     // 데이터베이스에 저장된 사용자인지 확인
-    user := &model.User{}
-    err = dbConfig.UserCollection.FindOne(c, bson.M{"email": userInfo.Email}).Decode(user)
-    if err == mongo.ErrNoDocuments {
-        
+    user, err := util.GetUserByEmail(c, userInfo.Email)
+    if err != nil {
+
         // 새로운 사용자 추가
-        user = &model.User{
-            Name:      userInfo.Name,
-            Email:     userInfo.Email,
-            AppLang:   "ko",
-            CountryCode: "KR",
-        }
-        _, err := dbConfig.UserCollection.InsertOne(c, user)
+        user, err = AddNewUser(c, userInfo)
         if err != nil {
-            fmt.Printf("Failed to insert new user: %v\n", err)
+            fmt.Printf("❌ Failed to create new user: %v\n", err)
             c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create new user"})
             return
         }
-    } else if err != nil {
-        fmt.Printf("Error querying user: %v\n", err)
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find user"})
-        return
     }
 
 
-	accessToken, err := generateAccessToken(userInfo.Sub, userInfo.Name, userInfo.Email, time.Hour)
+	accessToken, err := generateAccessToken(userInfo.Sub, userInfo.Name, userInfo.Email, 24*time.Hour)
 	if err != nil {
 		fmt.Printf("❌ Failed to generate access token: %v\n", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate access token"})
@@ -146,8 +138,27 @@ func GoogleLoginHandler(c *gin.Context) {
     fmt.Printf("✅ Access Token: %s\n", accessToken)
     fmt.Printf("✅ Refresh Token: %s\n", refreshToken)
 
-    _ = storeRefreshToken(userInfo.Sub, refreshToken)
+    
+    // token 저장
+    authToken := model.AuthToken{
+        GoogleUserID: userInfo.Sub,
+        AccessToken:  accessToken,
+        RefreshToken: refreshToken,
+        CreatedAt:    time.Now(),
+        UpdatedAt:    time.Now(),
+        ExpireAt:     time.Now().Add(24*time.Hour),
+        Email:        userInfo.Email,
+        UserID:       user.UserID,
+    }
 
+    if err := saveOrUpdateAuthToken(authToken); err != nil {
+        log.Printf("Failed to save auth token: %v\n", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to store auth token"})
+        return
+    }
+
+
+    // API response
     c.JSON(http.StatusOK, gin.H{
         "token": accessToken,
     })
@@ -246,7 +257,7 @@ func GoogleRefreshTokenHandler(c *gin.Context) {
 
 	// storing tokens
 
-    newToken, err := generateAccessToken(userID, claims.Name, claims.Email, time.Hour)
+    newToken, err := generateAccessToken(userID, claims.Name, claims.Email, 24*time.Hour)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate new access token"})
         return
@@ -255,4 +266,57 @@ func GoogleRefreshTokenHandler(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{
         "access_token": newToken,
     })
+}
+
+
+func AddNewUser(ctx context.Context, userInfo *GoogleIDTokenPayload) (*model.User, error) {
+    
+    // user_id (auto-increment)
+    userID, err := dbUtil.GetNextID(ctx, dbConfig.Client.Database("resq"), "users")
+    if err != nil {
+        return nil, fmt.Errorf("failed to get next user ID: %v", err)
+    }
+
+    // 신규 사용자 저장을 위한 객체 초기화
+    user := &model.User{
+        UserID:         userID,
+        Name:           userInfo.Name,
+        Email:          userInfo.Email,
+        AppLang:        "ko",               // default 
+        CountryCode:    "KR",               // default
+        GroupIDs:       []string{},
+        Favorites:      []int32{},
+    }
+
+    // 데이터베이스에 신규 사용자 저장
+    _, err = dbConfig.UserCollection.InsertOne(ctx, user)
+    if err != nil {
+        return nil, fmt.Errorf("failed to insert new user: %v", err)
+    }
+
+    return user, nil
+}
+
+
+func saveOrUpdateAuthToken(token model.AuthToken) error {
+    filter := bson.M{"email": token.Email}
+
+    update := bson.M{
+        "$set": bson.M{
+            "access_token":  token.AccessToken,
+            "refresh_token": token.RefreshToken,
+            "updated_at":    time.Now(),
+            "expire_at":     token.ExpireAt,
+            "google_user_id": token.GoogleUserID,
+            "user_id":        token.UserID,
+        },
+        "$setOnInsert": bson.M{
+            "created_at": time.Now(),
+        },
+    }
+
+    opts := options.Update().SetUpsert(true)
+
+    _, err := dbConfig.AuthTokenCollection.UpdateOne(context.TODO(), filter, update, opts)
+    return err
 }
