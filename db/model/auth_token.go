@@ -12,5 +12,5 @@ type AuthToken struct {
 	UpdatedAt    time.Time 		`bson:"updated_at"`
 	ExpireAt     time.Time 		`bson:"expire_at"`
 	Email        string			`bson:"email"`
-	UserID       string   		`bson:"user_id"`
+	UserID       int	   		`bson:"user_id"`
 }
