@@ -22,7 +22,9 @@ type MedicalInfoRequest struct {
 	Allergy    string  `json:"allergy" binding:"required"`
 	Medication string  `json:"medication" binding:"required"`
 	Height     float64 `json:"height" binding:"required"`
+	HeightUnit string  `json:"height_unit" binding:"required"`
 	Weight     float64 `json:"weight" binding:"required"`
+	WeightUnit string  `json:"weight_unit" binding:"required"`
 	BirthDate  string  `json:"birth_date" binding:"required"`
 	Notes      string  `json:"notes" binding:"required"`
 }

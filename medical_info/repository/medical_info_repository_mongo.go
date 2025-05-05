@@ -58,14 +58,16 @@ func (r *medicalInfoRepositoryMongo) GetMedicalInfo(ctx context.Context, userID 
 func (r *medicalInfoRepositoryMongo) UpdateMedicalInfo(ctx context.Context, userID int, info *model.MedicalInfo) (*model.MedicalInfo, error) {
 	update := bson.M{
 		"$set": bson.M{
-			"blood_type": info.BloodType,
-			"allergy":    info.Allergy,
-			"medication": info.Medication,
-			"height":     info.Height,
-			"weight":     info.Weight,
-			"birth_date": info.BirthDate,
-			"notes":      info.Notes,
-			"updated_at": info.UpdatedAt,
+			"blood_type":  info.BloodType,
+			"allergy":     info.Allergy,
+			"medication":  info.Medication,
+			"height":      info.Height,
+			"height_unit": info.HeightUnit,
+			"weight":      info.Weight,
+			"weight_unit": info.WeightUnit,
+			"birth_date":  info.BirthDate,
+			"notes":       info.Notes,
+			"updated_at":  info.UpdatedAt,
 		},
 	}
 
