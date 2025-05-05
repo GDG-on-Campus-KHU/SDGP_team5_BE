@@ -48,3 +48,16 @@ func GetUserByIDFromRequest(ctx context.Context, userID int) (*model.User, error
 	}
 	return &user, nil
 }
+
+
+func GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+    filter := bson.M{"email": email}
+
+    var user model.User
+    err := dbConfig.UserCollection.FindOne(ctx, filter).Decode(&user)
+    if err != nil {
+        return nil, errors.New("user not found")
+    }
+
+    return &user, nil
+}
