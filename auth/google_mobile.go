@@ -170,8 +170,8 @@ func exchangeAuthCode(authCode, clientID, clientSecret string) (*GoogleTokenResp
         "code":          authCode,
         "client_id":     clientID,
         "client_secret": clientSecret,
-        // "redirect_uri": os.Getenv("GOOGLE_AUTH_REDIRECT_URL"),
-        "redirect_uri": "http://localhost:5100/oauth2callback",  // local test
+        "redirect_uri": os.Getenv("GOOGLE_AUTH_REDIRECT_URL"),
+        // "redirect_uri": "http://localhost:5100/oauth2callback",  // local test
         "grant_type":    "authorization_code",
     }
 
@@ -257,14 +257,21 @@ func GoogleRefreshTokenHandler(c *gin.Context) {
 
 	// storing tokens
 
-    newToken, err := generateAccessToken(userID, claims.Name, claims.Email, 24*time.Hour)
+    newAccessToken, err := generateAccessToken(userID, claims.Name, claims.Email, 24*time.Hour)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate new access token"})
         return
     }
 
+    // 2. Update token in DB
+    err = UpdateAccessTokenByGoogleUserID(userID, newAccessToken, time.Now().Add(24*time.Hour))
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update token in database"})
+        return
+    }
+
     c.JSON(http.StatusOK, gin.H{
-        "access_token": newToken,
+        "access_token": newAccessToken,
     })
 }
 
@@ -318,5 +325,21 @@ func saveOrUpdateAuthToken(token model.AuthToken) error {
     opts := options.Update().SetUpsert(true)
 
     _, err := dbConfig.AuthTokenCollection.UpdateOne(context.TODO(), filter, update, opts)
+    return err
+}
+
+
+func UpdateAccessTokenByGoogleUserID(googleUserID, newToken string, expireAt time.Time) error {
+    ctx := context.TODO()
+    filter := bson.M{"google_user_id": googleUserID}
+    update := bson.M{
+        "$set": bson.M{
+            "access_token": newToken,
+            "updated_at":   time.Now(),
+            "expire_at":    expireAt,
+        },
+    }
+
+    _, err := dbConfig.AuthTokenCollection.UpdateOne(ctx, filter, update)
     return err
 }
