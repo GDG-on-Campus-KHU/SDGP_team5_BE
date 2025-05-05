@@ -14,6 +14,11 @@ import (
 
     "github.com/gin-gonic/gin"
     "github.com/golang-jwt/jwt/v4"
+    "go.mongodb.org/mongo-driver/bson"
+    "go.mongodb.org/mongo-driver/mongo"
+
+    dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
+    "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
 )
 
 
@@ -99,6 +104,31 @@ func GoogleLoginHandler(c *gin.Context) {
         return
     }
 
+    // 데이터베이스에 저장된 사용자인지 확인
+    user := &model.User{}
+    err = dbConfig.UserCollection.FindOne(c, bson.M{"email": userInfo.Email}).Decode(user)
+    if err == mongo.ErrNoDocuments {
+        
+        // 새로운 사용자 추가
+        user = &model.User{
+            Name:      userInfo.Name,
+            Email:     userInfo.Email,
+            AppLang:   "ko",
+            CountryCode: "KR",
+        }
+        _, err := dbConfig.UserCollection.InsertOne(c, user)
+        if err != nil {
+            fmt.Printf("Failed to insert new user: %v\n", err)
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create new user"})
+            return
+        }
+    } else if err != nil {
+        fmt.Printf("Error querying user: %v\n", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to find user"})
+        return
+    }
+
+
 	accessToken, err := generateAccessToken(userInfo.Sub, userInfo.Name, userInfo.Email, time.Hour)
 	if err != nil {
 		fmt.Printf("❌ Failed to generate access token: %v\n", err)
@@ -129,10 +159,8 @@ func exchangeAuthCode(authCode, clientID, clientSecret string) (*GoogleTokenResp
         "code":          authCode,
         "client_id":     clientID,
         "client_secret": clientSecret,
-	// "redirect_uri": "  https://res-q.site/oauth2callback",
-	// "redirect_uri": "http://localhost:5100/oauth2callback",
-        // "redirect_uri": "com.example.resqapp:/oauth2redirect",
-        "redirect_uri": os.Getenv("GOOGLE_AUTH_REDIRECT_URL"),
+        // "redirect_uri": os.Getenv("GOOGLE_AUTH_REDIRECT_URL"),
+        "redirect_uri": "http://localhost:5100/oauth2callback",  // local test
         "grant_type":    "authorization_code",
     }
 
