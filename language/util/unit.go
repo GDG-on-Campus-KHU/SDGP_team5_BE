@@ -3,6 +3,8 @@
 package util
 
 import (
+	"math"
+	
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/model"
 )
 
@@ -54,6 +56,12 @@ func ConvertKgToLb(kg float64) float64 {
 }
 
 
+
+func roundToTwoDecimal(val float64) float64 {
+	return math.Round(val*100) / 100
+}
+
+
 func ConvertHeight(medicalHeight float64, medicalHeightUnit model.HeightUnit, targetHeightUnit model.HeightUnit) (float64, model.HeightUnit) {
 	if medicalHeightUnit == HeightUnitCm && targetHeightUnit != HeightUnitCm {
 		if targetHeightUnit == HeightUnitFeet {
@@ -63,7 +71,7 @@ func ConvertHeight(medicalHeight float64, medicalHeightUnit model.HeightUnit, ta
 		medicalHeight = ConvertFeetToCm(medicalHeight)
 	}
 
-	return medicalHeight, targetHeightUnit
+	return roundToTwoDecimal(medicalHeight), targetHeightUnit
 }
 
 func ConvertWeight(medicalWeight float64, medicalWeightUnit model.WeightUnit, targetWeightUnit model.WeightUnit) (float64, model.WeightUnit) {
@@ -75,5 +83,5 @@ func ConvertWeight(medicalWeight float64, medicalWeightUnit model.WeightUnit, ta
 		medicalWeight = ConvertLbToKg(medicalWeight)
 	}
 
-	return medicalWeight, targetWeightUnit
+	return roundToTwoDecimal(medicalWeight), targetWeightUnit
 }
