@@ -15,6 +15,7 @@ import (
 	"strings"
 	
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/util"
+	unitUtil "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/language/util"
 )
 
 
@@ -45,7 +46,7 @@ func callGeminiForMedicalInfo(apiKey string, langCode string, medicalInfo map[st
 	
 	- The fields "Allergy", "Medication", and "Notes" should be translated carefully with proper medical terminology and precision.
 	- The field "Name" refers to a person's full name and should be transliterated or adapted to the target language based on cultural or linguistic conventions, rather than translated literally.
-	
+
 	Return the translated result in JSON format with the same keys as the original:
 	%s
 	`, langCode, string(infoJSON))
@@ -145,6 +146,13 @@ func (s *translationService) GetTranslatedMedicalInfo(ctx context.Context, userI
 	// 사용자의 'country_code'에 따라 번역 언어 결정
 	langCode := util.CountryCodeToLangCode(user.CountryCode)
 
+	targetHeightUnit := unitUtil.DefaultHeightUnit(user.CountryCode)
+	targetWeightUnit := unitUtil.DefaultWeightUnit(user.CountryCode)
+
+	convertedHeight, convertedHeightUnit := unitUtil.ConvertHeight(medicalInfo.Height, medicalInfo.HeightUnit, targetHeightUnit)
+	convertedWeight, convertedWeightUnit := unitUtil.ConvertWeight(medicalInfo.Weight, medicalInfo.WeightUnit, targetWeightUnit)
+	log.Println(medicalInfo.Height, medicalInfo.HeightUnit, targetHeightUnit, medicalInfo.Weight, medicalInfo.WeightUnit, targetWeightUnit)
+
 	// 번역할 필드 (allergy, medication, notes, name)
 	medicalInfoMap := map[string]string{
 		"Allergy":    medicalInfo.Allergy,
@@ -178,11 +186,13 @@ func (s *translationService) GetTranslatedMedicalInfo(ctx context.Context, userI
 		UserID:     userID,
 		Name:       translated.Name,
 		Allergy:    translated.Allergy,
-		Medication: translated.Medication,
+		Medication:	translated.Medication,
 		Notes:      translated.Notes,
 		BloodType:  string(medicalInfo.BloodType),
-		Height:     medicalInfo.Height,
-		Weight:     medicalInfo.Weight,
+		Height:     convertedHeight,
+		HeightUnit: string(convertedHeightUnit),
+		Weight:     convertedWeight,
+		WeightUnit: string(convertedWeightUnit),
 		BirthDate:  medicalInfo.BirthDate,
 	}
 	

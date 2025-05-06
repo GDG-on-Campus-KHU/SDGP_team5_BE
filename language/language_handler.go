@@ -32,15 +32,17 @@ type TranslatedMedicalInfo struct {
 
 
 type MedicalTranslationResponse struct {
-	UserID     int    `json:"user_id"`
-	Name       string `json:"name"`
-	Allergy    string `json:"allergy"`
-	Medication string `json:"medication"`
-	Notes      string `json:"notes"`
-	BloodType  string `json:"blood_type"`
-	Height     float64 `json:"height"`
-	Weight     float64 `json:"weight"`
-	BirthDate  string `json:"birth_date"`
+	UserID     int		`json:"user_id"`
+	Name       string	`json:"name"`
+	Allergy    string	`json:"allergy"`
+	Medication string	`json:"medication"`
+	Notes      string 	`json:"notes"`
+	BloodType  string 	`json:"blood_type"`
+	Height     float64	`json:"height"`
+	HeightUnit string  	`json:"height_unit"`
+	Weight     float64 	`json:"weight"`
+	WeightUnit string  	`json:"weight_unit"`
+	BirthDate  string  	`json:"birth_date"`
 }
 
 
