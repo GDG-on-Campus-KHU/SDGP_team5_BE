@@ -40,9 +40,9 @@ type MedicalInfo struct {
 	BloodType  BloodType          `bson:"blood_type" json:"blood_type"`
 	Allergy    string             `bson:"allergy" json:"allergy"`
 	Medication string             `bson:"medication" json:"medication"`
-	Height     float64            `bson:"height" json:"height"`
+	Height     float64            `bson:"height,omitempty" json:"height,omitempty"`
 	HeightUnit HeightUnit         `bson:"height_unit" json:"height_unit"`
-	Weight     float64            `bson:"weight" json:"weight"`
+	Weight     float64            `bson:"weight,omitempty" json:"weight,omitempty"`
 	WeightUnit WeightUnit         `bson:"weight_unit" json:"weight_unit"`
 	BirthDate  string             `bson:"birth_date" json:"birth_date"`
 	Notes      string             `bson:"notes" json:"notes"`
