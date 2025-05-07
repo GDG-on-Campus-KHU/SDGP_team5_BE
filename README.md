@@ -47,10 +47,13 @@
 ```
 .
 ├── 🔒 auth/
+├── ⭐ favorite/
 ├── 👥 group/
 ├── 🌍 language/
+├── 💊 medical_info/
 ├── 🎤 recording/
 ├── 🚑 situation/
+├── 👤 user/
 ├── 🔧 util/
 ├── db
 │   ├── gcs.go
