@@ -4,6 +4,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
@@ -50,6 +51,9 @@ func (r *medicalInfoRepositoryMongo) GetMedicalInfo(ctx context.Context, userID 
 	filter := bson.M{"info_id": userID}
 	err := r.collection.FindOne(ctx, filter).Decode(&info)
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.New("medical info not found")
+		}
 		return nil, err
 	}
 	return &info, nil
