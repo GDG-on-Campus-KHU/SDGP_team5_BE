@@ -10,6 +10,7 @@ import (
 func RegisterMedicalInfoRoutes(r *gin.Engine, medicalInfoHandler *MedicalInfoHandler) {
 	// medical_info routes
 	r.POST("/api/medical-info", auth.JWTAuthMiddleware(), medicalInfoHandler.CreateMedicalInfo)
-	r.GET("/api/medical-info/:id", auth.JWTAuthMiddleware(), medicalInfoHandler.GetMedicalInfo)
+	r.GET("/api/medical-info/:id", auth.JWTAuthMiddleware(), medicalInfoHandler.GetMedicalInfoByID)
+	r.GET("/api/medical-info/me", auth.JWTAuthMiddleware(), medicalInfoHandler.GetMedicalInfo)
 	r.PUT("/api/medical-info", auth.JWTAuthMiddleware(), medicalInfoHandler.UpdateMedicalInfo)
 }
