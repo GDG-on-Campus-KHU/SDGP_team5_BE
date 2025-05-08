@@ -30,7 +30,7 @@ func RunAuthCodeTest() {
     if clientID == "" {
         log.Fatal("GOOGLE_AUTH_CLIENT_ID env variable not set")
     }
-	redirectURI := "http://localhost:5100/oauth2callback"
+	redirectURI := os.Getenv("GOOGLE_AUTH_REDIRECT_URL")
     scope := "openid email profile"
 
     authURL := fmt.Sprintf("https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&access_type=offline&prompt=consent",

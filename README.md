@@ -40,6 +40,8 @@
 
 ## 🧩 Project Architecture
 
+<img src="https://drive.google.com/uc?id=1WH0xObPY-U4_opNcNv_3qroycj5ra3ev" width=80%>
+
 <br>
 
 ## 📂 Project Structure
