@@ -20,7 +20,7 @@ import (
 
 func GetUserByEmail(email string) (*model.User, error) {
 	var user model.User
-	
+
 	result := dbConfig.UserCollection.FindOne(context.Background(), bson.M{"email": email})
 
 	if err := result.Err(); err != nil {
@@ -41,7 +41,6 @@ func GetUserByEmail(email string) (*model.User, error) {
 	log.Printf("[GetUserByEmail] User found: %s", email)
 	return &user, nil
 }
-
 
 func CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
 	// user_id (auto-increment)
@@ -66,7 +65,6 @@ func CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
 	if user.CountryCode == "" {
 		user.CountryCode = "KR"
 	}
-	user.InfoID = userID
 
 	// save user
 	collection := dbConfig.UserCollection
@@ -79,7 +77,6 @@ func CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
 	return user, nil
 }
 
-
 // generate a random state string
 func GenerateState() string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -89,8 +86,6 @@ func GenerateState() string {
 	}
 	return string(state)
 }
-
-
 
 func ValidateRefreshToken(tokenString string) (*CustomClaims, error) {
 	secretKey := os.Getenv("JWT_SECRET_KEY")
