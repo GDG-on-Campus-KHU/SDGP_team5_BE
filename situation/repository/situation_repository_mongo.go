@@ -4,7 +4,6 @@ package repository
 
 import (
 	"context"
-	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -34,7 +33,6 @@ func (r *situationRepositoryMongo) GetSituationByIndex(ctx context.Context, situ
 	var situation model.Situation
 	err := r.collection.FindOne(ctx, bson.M{"index": situationIndex}).Decode(&situation)
 	if err != nil {
-		log.Println("Trying to find situation with index:", situationIndex)
 		return nil, err
 	}
 	return &situation, nil

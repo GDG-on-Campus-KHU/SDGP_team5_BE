@@ -3,23 +3,20 @@
 package language
 
 import (
-	"context"
-	"fmt"
-	"encoding/json"
-	"net/http"
-	"io"
 	"bytes"
-	"os"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
 	"log"
+	"net/http"
+	"os"
 	"regexp"
 	"strings"
-	
-	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/util"
+
 	unitUtil "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/language/util"
+	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/util"
 )
-
-
-
 
 type TranslationService interface {
 	GetTranslatedMedicalInfo(ctx context.Context, userID int) (*MedicalTranslationResponse, error)
@@ -30,7 +27,6 @@ type translationService struct{}
 func NewTranslationService() TranslationService {
 	return &translationService{}
 }
-
 
 func callGeminiForMedicalInfo(apiKey string, langCode string, medicalInfo map[string]string) (string, error) {
 	url := "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey
@@ -117,9 +113,8 @@ func callGeminiForMedicalInfo(apiKey string, langCode string, medicalInfo map[st
 	return cleaned, nil
 }
 
-
 func (s *translationService) GetTranslatedMedicalInfo(ctx context.Context, userID int) (*MedicalTranslationResponse, error) {
-	
+
 	// 요청한 사용자의 기본 정보 조회
 	user, err := util.GetUserByIDFromRequest(ctx, userID)
 	if err != nil {
@@ -127,10 +122,8 @@ func (s *translationService) GetTranslatedMedicalInfo(ctx context.Context, userI
 		return nil, fmt.Errorf("failed to find user: %v", err)
 	}
 
-	log.Println("User Info ID:", user.InfoID)
-
 	// 해당 사용자의 medical info 조회
-	medicalInfo, err := util.GetMedicalInfoByID(ctx, int32(user.InfoID))
+	medicalInfo, err := util.GetMedicalInfoByID(ctx, int32(user.UserID))
 	if err != nil {
 		log.Println("Error fetching medical info:", err)
 		return nil, fmt.Errorf("failed to find medical info: %v", err)
@@ -186,7 +179,7 @@ func (s *translationService) GetTranslatedMedicalInfo(ctx context.Context, userI
 		UserID:     userID,
 		Name:       translated.Name,
 		Allergy:    translated.Allergy,
-		Medication:	translated.Medication,
+		Medication: translated.Medication,
 		Notes:      translated.Notes,
 		BloodType:  string(medicalInfo.BloodType),
 		Height:     convertedHeight,
@@ -195,7 +188,7 @@ func (s *translationService) GetTranslatedMedicalInfo(ctx context.Context, userI
 		WeightUnit: string(convertedWeightUnit),
 		BirthDate:  medicalInfo.BirthDate,
 	}
-	
+
 	responseJSON, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		log.Println("Error marshalling response:", err)
@@ -205,7 +198,6 @@ func (s *translationService) GetTranslatedMedicalInfo(ctx context.Context, userI
 
 	return response, nil
 }
-
 
 // Gemini response 추가 처리
 func cleanGeminiJSON(raw string) string {
