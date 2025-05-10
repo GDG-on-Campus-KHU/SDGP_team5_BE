@@ -13,7 +13,9 @@
 
 <b>ResQ</b>는 그런 순간에 여러분의 <b>생명</b>과 <b>안전</b>을 지켜주는 <b>든든한 동반자</b>가 되고자 합니다.</code></pre>
 
-<img src="https://drive.google.com/uc?id=1wOQnC2JamqkYSGTIdRcSwDGFH92ATsjX" width=60%>
+<div align="center">
+  <img src="https://drive.google.com/uc?id=1wOQnC2JamqkYSGTIdRcSwDGFH92ATsjX" width=60%>
+</div>
 
 ---
 
@@ -64,7 +66,9 @@
 
 ## 🧩 Project Architecture
 
-<img src="https://drive.google.com/uc?id=1WH0xObPY-U4_opNcNv_3qroycj5ra3ev" width=80%>
+<div align="center">
+  <img src="https://drive.google.com/uc?id=1WH0xObPY-U4_opNcNv_3qroycj5ra3ev" width=80%>
+</div>
 
 <br>
 
