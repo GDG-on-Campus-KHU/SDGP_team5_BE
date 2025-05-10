@@ -1,10 +1,9 @@
 <h1 align="center">🚨 ResQ 🚨</h1>
 
+#### 🌐 This is the `Korean` version of the README. | [English version](README.md)
+
 <pre><code>여행 중 <b>위급 상황</b> 발생 시 <b>신속한 대응</b>을 지원하는 모바일 애플리케이션입니다.
 </code></pre>
-
-#### 🌐 This is the `Korean` version of the README.
-- **[English version](README.md)** is available through the link.
 
 <br>
 
