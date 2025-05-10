@@ -1,10 +1,9 @@
 <h1 align="center">🚨 ResQ 🚨</h1>
 
-#### 🌐 This is the `English` version of the README. | [한국어 버전](README.ko.md)
-
-<pre><code>A mobile application that supports <b>quick response</b> in case of <b>emergency situations</b> while traveling.</code></pre>
-
-<br>
+<div align="center">
+  <pre><code><b><i>Instant support for your travel emergencies!</i></b></code></pre>
+  <h4>🌐 This is the <code>English</code> version of the README. | <a href="README.ko.md">한국어 버전</a></h4>
+</div>
 
 ## 🎯 Goal
 
