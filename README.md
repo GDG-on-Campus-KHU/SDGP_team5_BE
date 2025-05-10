@@ -2,7 +2,7 @@
 
 #### 🌐 This is the `English` version of the README. | [한국어 버전](README.ko.md)
 
-<pre><code><b>ResQ</b> is a mobile application that supports <b>quick response</b> in case of <b>emergency situations</b> while traveling.</code></pre>
+<pre><code>A mobile application that supports <b>quick response</b> in case of <b>emergency situations</b> while traveling.</code></pre>
 
 <br>
 
