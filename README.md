@@ -14,13 +14,14 @@
 
 ---
 
-### 💡 Key Feature
+### 💡 Key Features
 <h4> 🆘 위급 상황 시 신속한 도움 요청</h4>
 
 <pre><code>* <b>👆한 번의 터치</b>로 <b>응급 전화</b> 연결 및 <b>상황 녹음</b> 시작
 * 주요 응급 상황에 대한 <b>대처법</b> 안내</code></pre>
 
 ---
+
 
 #### 📌 기본 기능
 
@@ -58,21 +59,30 @@
 
 <br>
 
-## 👥 Team Members
-📌 2025 파트 연합 장기 프로젝트 SDGP - team5
-
-| Name       | Role     | GitHub                                               |
-|------------|----------|------------------------------------------------------|
-| 권동현      | Mobile  | [GwonDongHyeon21](https://github.com/GwonDongHyeon21) |
-| 김민        | Backend | [kmin1231](https://github.com/kmin1231) |
-| 김태훈      | Mobile  | [taeh-kim](https://github.com/taeh-kim) |
-| 박상영      | Backend | [Imsyp](https://github.com/Imsyp) |
-
-<br>
-
 ## 🧩 Project Architecture
 
 <img src="https://drive.google.com/uc?id=1WH0xObPY-U4_opNcNv_3qroycj5ra3ev" width=80%>
+
+<br>
+
+## ⚙️ Tech Stacks
+
+| stack                                     | description                                                     |
+| ----------------------------------------- | --------------------------------------------------------------- |
+| **`Go`**                                  | 메인 서버 작성 언어 |                   
+| `Gin`                                     | Go 언어 기반 서버의 웹 프레임워크 |
+| **`MongoDB`**                             | 핵심 데이터 저장 및 관리 |
+| **`GCP`** (Google Cloud Platform)         | 전체 시스템 인프라와 서비스를 안정적으로 운영하기 위한 클라우드 플랫폼 |
+| **`Gemini`**                              | 의학적 문맥 반영한 의료 정보 번역 결과 제공 |
+| `Google Cloud Speech-to-Text API`         | 상황 녹음 파일의 내용을 텍스트로 변환 |
+| `Elasticsearch + Monstache`               | MongoDB의 데이터를 동기화하여 고속 검색 기능 제공 |
+| `Kibana`                                  | Elasticsearch 데이터를 시각화하고 데이터 분석 및 대시보드 제공 |
+| `Docker` + `GitHub Actions`               | 서버를 컨테이너화하여 자동으로 배포하는 CI/CD 환경 구축 |
+| `GAR` (Google Artifact Registry)          | 서버 배포를 위한 Docker 이미지 저장 |
+| `GCS` (Google Cloud Storage)              | 위급 상황 발생 시 자동 녹음된 음성 파일 임시 저장 및 관리 |
+| `Google Cloud Load Balancer`              | 서비스 부하 분산 및 고가용성 지원을 위한 트래픽 분산 |
+| `Google Cloud DNS`                        | 사용자 도메인을 서비스에 연결하고 접근 가능하도록 설정 |
+| `Google Cloud CDN`                        | 정적 콘텐츠를 캐싱하여 지연 시간 최소화 및 응답 속도 향상 |
 
 <br>
 
@@ -124,3 +134,13 @@ air
 ```
 
 <br>
+
+
+## 👥 Team Members
+
+| Name       | Role     | GitHub                                               |
+|------------|----------|------------------------------------------------------|
+| 권동현      | Mobile  | [GwonDongHyeon21](https://github.com/GwonDongHyeon21) |
+| 김민        | Backend | [kmin1231](https://github.com/kmin1231) |
+| 김태훈      | Mobile  | [taeh-kim](https://github.com/taeh-kim) |
+| 박상영      | Backend | [Imsyp](https://github.com/Imsyp) |
