@@ -1,7 +1,8 @@
 <h1 align="center">🚨 ResQ 🚨</h1>
 
+  
 <div align="center">
-  <pre><code><b><i>Instant support for your travel emergencies!</i></b></code></pre>
+  <h3><b><i>Instant support for your travel emergencies!</i></b></h3>
   <h4>🌐 This is the <code>English</code> version of the README. | <a href="README.ko.md">한국어 버전</a></h4>
 </div>
 
@@ -11,7 +12,9 @@
 
 <b>ResQ</b> aims to be a <b>reliable companion</b> that protects your <b>life</b> and <b>safety</b> in such moments.</code></pre>
 
-<img src="https://drive.google.com/uc?id=1wOQnC2JamqkYSGTIdRcSwDGFH92ATsjX" width=60%>
+<div align="center">
+  <img src="https://drive.google.com/uc?id=1wOQnC2JamqkYSGTIdRcSwDGFH92ATsjX" width=60%>
+</div>
 
 ---
 
@@ -62,7 +65,9 @@
 
 ## 🧩 Project Architecture
 
-<img src="https://drive.google.com/uc?id=1WH0xObPY-U4_opNcNv_3qroycj5ra3ev" width=80%>
+<div align="center">
+  <img src="https://drive.google.com/uc?id=1WH0xObPY-U4_opNcNv_3qroycj5ra3ev" width=80%>
+</div>
 
 <br>
 
