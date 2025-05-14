@@ -16,6 +16,8 @@ import (
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/medical_info"
 
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/auth"
+	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/country"
+	countryRepository "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/country/repository"
 	dbConfig "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/db/config"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/favorite"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/group"
@@ -127,6 +129,11 @@ func main() {
 	translationService := language.NewTranslationService()
 	translationHandler := language.NewTranslationHandler(translationService)
 	language.RegisterLanguageRoutes(r, translationHandler)
+
+	countryRepo := countryRepository.NewCountryRepository()
+	countryService := country.NewCountryService(countryRepo)
+	countryHandler := country.NewCountryHandler(countryService)
+	country.RegisterCountryRoutes(r, countryHandler)
 
 	r.POST("/translate", gin.WrapF(language.TranslateHandler))
 
