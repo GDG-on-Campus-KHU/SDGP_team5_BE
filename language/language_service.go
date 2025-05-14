@@ -14,7 +14,7 @@ import (
 	"regexp"
 	"strings"
 
-	unitUtil "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/language/util"
+	convertUtil "github.com/GDG-on-Campus-KHU/SDGP_team5_BE/language/util"
 	"github.com/GDG-on-Campus-KHU/SDGP_team5_BE/util"
 )
 
@@ -139,12 +139,25 @@ func (s *translationService) GetTranslatedMedicalInfo(ctx context.Context, userI
 	// 사용자의 'country_code'에 따라 번역 언어 결정
 	langCode := util.CountryCodeToLangCode(user.CountryCode)
 
-	targetHeightUnit := unitUtil.DefaultHeightUnit(user.CountryCode)
-	targetWeightUnit := unitUtil.DefaultWeightUnit(user.CountryCode)
+	targetHeightUnit := convertUtil.DefaultHeightUnit(user.CountryCode)
+	targetWeightUnit := convertUtil.DefaultWeightUnit(user.CountryCode)
 
-	convertedHeight, convertedHeightUnit := unitUtil.ConvertHeight(medicalInfo.Height, medicalInfo.HeightUnit, targetHeightUnit)
-	convertedWeight, convertedWeightUnit := unitUtil.ConvertWeight(medicalInfo.Weight, medicalInfo.WeightUnit, targetWeightUnit)
+	convertedHeight, convertedHeightUnit := convertUtil.ConvertHeight(medicalInfo.Height, medicalInfo.HeightUnit, targetHeightUnit)
+	convertedWeight, convertedWeightUnit := convertUtil.ConvertWeight(medicalInfo.Weight, medicalInfo.WeightUnit, targetWeightUnit)
 	log.Println(medicalInfo.Height, medicalInfo.HeightUnit, targetHeightUnit, medicalInfo.Weight, medicalInfo.WeightUnit, targetWeightUnit)
+
+
+	// 'birthdate'를 입력하지 않은 경우
+	var birthdate string
+	if medicalInfo.BirthDate == "" || medicalInfo.BirthDate == "None" {
+		birthdate = "-"
+	} else {
+		birthdate = medicalInfo.BirthDate
+	}
+
+	// 'country_code'에 맞는 medical_info field names
+	translatedTitles := convertUtil.TranslateInfoTitle(user.CountryCode)
+
 
 	// 번역할 필드 (allergy, medication, notes, name)
 	medicalInfoMap := map[string]string{
@@ -167,7 +180,7 @@ func (s *translationService) GetTranslatedMedicalInfo(ctx context.Context, userI
 		return nil, err
 	}
 
-	// 6. Gemini response 처리
+	// Gemini response 처리
 	var translated TranslatedMedicalInfo
 	err = json.Unmarshal([]byte(cleanedJSON), &translated)
 	if err != nil {
@@ -186,7 +199,8 @@ func (s *translationService) GetTranslatedMedicalInfo(ctx context.Context, userI
 		HeightUnit: string(convertedHeightUnit),
 		Weight:     convertedWeight,
 		WeightUnit: string(convertedWeightUnit),
-		BirthDate:  medicalInfo.BirthDate,
+		BirthDate:  birthdate,
+		InfoTitles: translatedTitles,
 	}
 
 	responseJSON, err := json.MarshalIndent(response, "", "  ")
