@@ -43,6 +43,7 @@ type MedicalTranslationResponse struct {
 	Weight     float64 	`json:"weight"`
 	WeightUnit string  	`json:"weight_unit"`
 	BirthDate  string  	`json:"birth_date"`
+	InfoTitles []string `json:"info_titles,omitempty"`
 }
 
 
