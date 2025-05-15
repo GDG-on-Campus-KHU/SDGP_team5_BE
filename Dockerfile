@@ -12,7 +12,7 @@ RUN go build -o main ./main.go
 
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates bash
+RUN apk --no-cache add ca-certificates bash ffmpeg
 
 WORKDIR /app
 
