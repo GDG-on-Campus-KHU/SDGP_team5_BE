@@ -125,7 +125,7 @@ func SyncSttRecordingHandler(c *gin.Context) {
 	}
 
 	// create recording record
-	record := NewRecording(userID, recordingURL)
+	record := NewRecording(user, recordingURL)
 	record.AppLang = string(user.AppLang)
 	record.RecordingText = transcription
 
