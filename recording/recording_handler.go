@@ -78,6 +78,12 @@ func SyncSttRecordingHandler(c *gin.Context) {
 
 
 	// save with original file extension
+	err = os.MkdirAll("tmp", os.ModePerm)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temp directory"})
+		return
+	}
+
 	ext := filepath.Ext(fileHeader.Filename)
     originalPath := fmt.Sprintf("tmp/%d%s", time.Now().Unix(), ext)
 
