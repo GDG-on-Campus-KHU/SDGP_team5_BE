@@ -37,7 +37,7 @@ func NewRecording(user *model.User, recordingURL string) *model.Recording {
 
 // 사용자의 이름과 현재 시간으로 'RecordingID' 생성 (unique)
 func generateRecordingID(user *model.User) string {
-	timestamp := time.Now().Format("20060102_150405")
+	timestamp := time.Now().Format("060102_150405")	// yyMMdd_hhmmss
 	username := user.Name
 
 	safeUsername := regexp.MustCompile(`\s+`).ReplaceAllString(username, "_")
