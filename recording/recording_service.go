@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 	"mime/multipart"
-	"strconv"
+	"regexp"
 	"time"
 	"io"
 	"os"
@@ -24,21 +24,25 @@ import (
 )
 
 // recording data
-func NewRecording(userID int, recordingURL string) *model.Recording {
-	recordingID := generateRecordingID(userID)
+func NewRecording(user *model.User, recordingURL string) *model.Recording {
+	recordingID := generateRecordingID(user)
 
 	return &model.Recording{
 		RecordingID:   recordingID,
-		UserID:        userID,
+		UserID:        user.UserID,
 		RecordingURL:  recordingURL,
 		CreatedAt:     time.Now(),
 	}
 }
 
-// userID와 현재 시간으로 'RecordingID' 생성 (unique)
-func generateRecordingID(userID int) string {
-	timestamp := time.Now().Format("20060102150405")
-	return fmt.Sprintf("user_%s_%s", strconv.Itoa(userID), timestamp)
+// 사용자의 이름과 현재 시간으로 'RecordingID' 생성 (unique)
+func generateRecordingID(user *model.User) string {
+	timestamp := time.Now().Format("20060102_150405")
+	username := user.Name
+
+	safeUsername := regexp.MustCompile(`\s+`).ReplaceAllString(username, "_")
+
+	return fmt.Sprintf("%s_%s", safeUsername, timestamp)
 }
 
 
